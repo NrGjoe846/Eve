@@ -59,10 +59,10 @@ const Dashboard = () => {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 animate-gradient">
-              UNAI Verse
+              EVE
             </h1>
             <p className="text-xl text-gray-300 animate-fade-in">
-              Your Journey Through The Code Galaxy Begins Here
+              Education Via Entertainment
             </p>
           </div>
 
