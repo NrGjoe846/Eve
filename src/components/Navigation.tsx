@@ -31,7 +31,7 @@ const Navigation = () => {
                 alt="UNAI Verse Logo" 
                 className="w-8 h-8"
               />
-              <span className="text-xl font-bold">UNAI Verse</span>
+              <span className="text-xl font-bold">UNAI TECH</span>
             </Link>
 
             {/* Desktop Menu */}
