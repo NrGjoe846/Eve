@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, RotateCcw, Play } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, RotateCcw, Scroll } from 'lucide-react';
 import flashcardsData from '../../data/quizzes/pythonFlashcards.json';
 
 interface FlashCard {
@@ -40,7 +40,9 @@ const PythonFlashcards: React.FC<PythonFlashcardsProps> = ({
       return [];
     };
 
-    setCards(findFlashcardsForModule());
+    const foundCards = findFlashcardsForModule();
+    console.log(`Flashcards for ${moduleTitle}:`, foundCards); // Debug log
+    setCards(foundCards);
     setCurrentCardIndex(0);
     setIsFlipped(false);
   }, [moduleTitle]);
@@ -55,22 +57,22 @@ const PythonFlashcards: React.FC<PythonFlashcardsProps> = ({
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
       >
-        <div className="bg-[#1a1a2e] rounded-2xl p-6 max-w-md w-full m-4 text-center">
-          <h2 className="text-xl font-bold mb-4">No Flashcards Available</h2>
-          <p className="text-gray-400 mb-6">Would you like to start the quiz instead?</p>
+        <div className="bg-[#f4e4bc] rounded-2xl p-6 max-w-md w-full m-4 text-center border-2 border-[#8b5e3c] shadow-lg font-serif" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/paper-fibers.png')" }}>
+          <h2 className="text-xl font-bold text-[#3c2f2f] mb-4">No Scrolls of Knowledge Available</h2>
+          <p className="text-[#6b4e31] mb-6">Would you like to embark on the trial instead?</p>
           <div className="flex justify-center gap-4">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
+              className="px-4 py-2 bg-[#8b5e3c] hover:bg-[#a67c00] text-[#f4e4bc] rounded-lg transition-colors shadow-md"
             >
-              Close
+              Return to Realm
             </button>
             <button
               onClick={onStartQuiz}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-[#8b5e3c] hover:bg-[#a67c00] text-[#f4e4bc] rounded-lg transition-colors flex items-center gap-2 shadow-md"
             >
-              <Play className="w-4 h-4" />
-              Start Quiz
+              <Scroll className="w-4 h-4" />
+              Begin Trial
             </button>
           </div>
         </div>
@@ -110,36 +112,43 @@ const PythonFlashcards: React.FC<PythonFlashcardsProps> = ({
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
     >
-      <div className="relative w-full max-w-4xl bg-[#1a1a2e] rounded-2xl shadow-2xl p-6 m-4">
+      <div 
+        className="relative w-full max-w-4xl parchment-bg rounded-2xl shadow-2xl p-6 m-4 font-serif" 
+        style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/paper-fibers.png')" }}
+      >
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-xl font-bold">{moduleTitle}</h2>
+          <h2 className="text-xl font-bold text-[#3c2f2f]">{moduleTitle} Scrolls</h2>
           <div className="flex items-center gap-4">
-            <button
+            <motion.button
               onClick={handleReset}
-              className="p-2 hover:bg-white/10 rounded-lg transition-all"
-              title="Reset"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 hover:bg-[#8b5e3c]/20 rounded-lg transition-all text-[#8b5e3c]"
+              title="Reset Scrolls"
             >
               <RotateCcw className="w-5 h-5" />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-lg transition-all"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 hover:bg-[#8b5e3c]/20 rounded-lg transition-all text-[#8b5e3c]"
             >
               <X className="w-6 h-6" />
-            </button>
+            </motion.button>
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-6">
-          <div className="flex justify-between text-sm mb-2">
-            <span>Card {currentCardIndex + 1} of {cards.length}</span>
+          <div className="flex justify-between text-sm mb-2 text-[#6b4e31]">
+            <span>Scroll {currentCardIndex + 1} of {cards.length}</span>
             <span>{Math.round(((currentCardIndex + 1) / cards.length) * 100)}%</span>
           </div>
-          <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-2 bg-[#d3c092] rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-500 transition-all duration-300"
+              className="h-full bg-gradient-to-r from-[#8b5e3c] to-[#a67c00] transition-all duration-300"
               style={{ width: `${((currentCardIndex + 1) / cards.length) * 100}%` }}
             />
           </div>
@@ -157,52 +166,58 @@ const PythonFlashcards: React.FC<PythonFlashcardsProps> = ({
             {/* Front */}
             <div
               className={`absolute inset-0 backface-hidden p-8 flex items-center justify-center text-center 
-                backdrop-blur-xl bg-white/10 rounded-2xl border border-white/20 cursor-pointer
+                bg-[#f4e4bc]/80 rounded-2xl border border-[#8b5e3c] shadow-inner cursor-pointer
                 ${isFlipped ? 'opacity-0' : 'opacity-100'}`}
               onClick={handleFlip}
             >
-              <div className="text-xl">{currentCard.front}</div>
+              <div className="text-xl text-[#3c2f2f]">{currentCard.front}</div>
             </div>
 
             {/* Back */}
             <div
               className={`absolute inset-0 backface-hidden p-8 flex items-center justify-center text-center 
-                backdrop-blur-xl bg-white/10 rounded-2xl border border-white/20 cursor-pointer
+                bg-[#f4e4bc]/80 rounded-2xl border border-[#8b5e3c] shadow-inner cursor-pointer
                 [transform:rotateY(180deg)]
                 ${isFlipped ? 'opacity-100' : 'opacity-0'}`}
               onClick={handleFlip}
             >
-              <div className="text-xl whitespace-pre-line">{currentCard.back}</div>
+              <div className="text-xl text-[#3c2f2f] whitespace-pre-line">{currentCard.back}</div>
             </div>
           </motion.div>
         </div>
 
         {/* Navigation */}
         <div className="flex items-center justify-between">
-          <button
+          <motion.button
             onClick={handlePrevious}
             disabled={currentCardIndex === 0}
-            className="p-2 hover:bg-white/10 rounded-lg transition-all disabled:opacity-50"
+            whileHover={{ scale: currentCardIndex === 0 ? 1 : 1.05 }}
+            whileTap={{ scale: currentCardIndex === 0 ? 1 : 0.95 }}
+            className="p-2 hover:bg-[#8b5e3c]/20 rounded-lg transition-all text-[#8b5e3c] disabled:opacity-50"
           >
             <ChevronLeft className="w-6 h-6" />
-          </button>
+          </motion.button>
 
           {currentCardIndex === cards.length - 1 ? (
-            <button
+            <motion.button
               onClick={onStartQuiz}
-              className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-2 bg-[#8b5e3c] hover:bg-[#a67c00] text-[#f4e4bc] rounded-lg transition-colors flex items-center gap-2 shadow-md"
             >
-              <Play className="w-4 h-4" />
-              Start Quiz
-            </button>
+              <Scroll className="w-4 h-4" />
+              Begin Trial
+            </motion.button>
           ) : (
-            <button
+            <motion.button
               onClick={handleNext}
               disabled={currentCardIndex === cards.length - 1}
-              className="p-2 hover:bg-white/10 rounded-lg transition-all disabled:opacity-50"
+              whileHover={{ scale: currentCardIndex === cards.length - 1 ? 1 : 1.05 }}
+              whileTap={{ scale: currentCardIndex === cards.length - 1 ? 1 : 0.95 }}
+              className="p-2 hover:bg-[#8b5e3c]/20 rounded-lg transition-all text-[#8b5e3c] disabled:opacity-50"
             >
               <ChevronRight className="w-6 h-6" />
-            </button>
+            </motion.button>
           )}
         </div>
       </div>

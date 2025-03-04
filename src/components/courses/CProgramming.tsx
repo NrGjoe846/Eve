@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Book, Code, Play, CheckCircle, Lock, ChevronDown, ChevronUp, 
-  AlertCircle, ChevronLeft, ChevronRight, Star, Trophy, Flame
+  Skull, Flame, CheckCircle, Lock, ChevronDown, ChevronUp, 
+  AlertCircle, ChevronLeft, ChevronRight, Star, Ghost, Trophy, Flame as Fire // Added Trophy, renamed Flame to Fire
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import BackButton from '../BackButton';
-import GlowingButton from '../ui/GlowingButton';
 import CQuizPopup from '../quiz/CQuizPopup';
 import CFlashcards from '../quiz/CFlashcards';
 import CVideo from '../quiz/CVideo';
@@ -33,6 +31,7 @@ interface Phase {
   topics: Topic[];
   expanded?: boolean;
   icon: string;
+  backgroundImage?: string;
 }
 
 const CProgramming = () => {
@@ -147,7 +146,7 @@ const CProgramming = () => {
     setSparklePhase(phaseId);
     const sparkles = Array.from({ length: 8 }).map((_, i) => {
       const sparkle = document.createElement('div');
-      sparkle.className = 'absolute w-2 h-2 bg-blue-400 rounded-full';
+      sparkle.className = 'absolute w-2 h-2 bg-[#8B0000] rounded-full';
       sparkle.style.left = `${Math.random() * 100}%`;
       sparkle.style.top = `${Math.random() * 100}%`;
       sparkle.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
@@ -181,15 +180,9 @@ const CProgramming = () => {
   const isSubtopicLocked = (phaseId: string, topicId: string, subtopicIndex: number) => {
     const phase = coursePhases.find(p => p.id === phaseId);
     const topic = phase?.topics.find(t => t.id === topicId);
-    
-    if (!topic?.subtopics || subtopicIndex === 0) {
-      return false;
-    }
-
+    if (!topic?.subtopics || subtopicIndex === 0) return false;
     const previousSubtopic = topic.subtopics[subtopicIndex - 1];
-    const completedSubtopics = userProgress.completedSubtopics[topicId] || [];
-    
-    return !completedSubtopics.includes(previousSubtopic.id);
+    return !userProgress.completedSubtopics[topicId]?.includes(previousSubtopic.id);
   };
 
   const handleSubtopicStart = (topicTitle: string, subtopicTitle: string) => {
@@ -199,8 +192,7 @@ const CProgramming = () => {
     const topic = phase?.topics.find(t => t.id === selectedTopic.topicId);
     const subtopicIndex = topic?.subtopics?.findIndex(s => s.title === subtopicTitle);
 
-    if (subtopicIndex !== undefined && subtopicIndex >= 0 && 
-        isSubtopicLocked(selectedTopic.phaseId, selectedTopic.topicId, subtopicIndex)) {
+    if (subtopicIndex !== undefined && subtopicIndex >= 0 && isSubtopicLocked(selectedTopic.phaseId, selectedTopic.topicId, subtopicIndex)) {
       console.log('Subtopic is locked. Complete previous subtopic first.');
       return;
     }
@@ -216,8 +208,12 @@ const CProgramming = () => {
 
     if (isPhase1Topic1) {
       setShowVideo(true);
+      setShowFlashcards(false);
+      setShowQuiz(false);
     } else {
       setShowFlashcards(true);
+      setShowQuiz(false);
+      setShowVideo(false);
     }
   };
 
@@ -234,49 +230,47 @@ const CProgramming = () => {
     if (selectedTopic) {
       const phase = coursePhases.find(p => p.id === selectedTopic.phaseId);
       const topic = phase?.topics.find(t => t.id === selectedTopic.topicId);
+      const subtopic = topic?.subtopics?.find(s => s.title === currentQuizSubtopic);
 
-      if (topic && topic.subtopics) {
-        const subtopic = topic.subtopics.find(s => s.title === currentQuizSubtopic);
-        if (subtopic) {
-          const newCompletedSubtopics = {
-            ...userProgress.completedSubtopics,
-            [selectedTopic.topicId]: [
-              ...(userProgress.completedSubtopics[selectedTopic.topicId] || []),
-              subtopic.id
-            ]
-          };
+      if (subtopic) {
+        const newCompletedSubtopics = {
+          ...userProgress.completedSubtopics,
+          [selectedTopic.topicId]: [
+            ...(userProgress.completedSubtopics[selectedTopic.topicId] || []),
+            subtopic.id
+          ]
+        };
 
-          const baseXP = 50;
-          const bonusXP = Math.floor(score * baseXP / 100);
-          const totalXP = baseXP + bonusXP;
+        const baseXP = 50;
+        const bonusXP = Math.floor(score * baseXP / 100);
+        const totalXP = baseXP + bonusXP;
 
-          const today = new Date().toDateString();
-          const streakBonus = userProgress.lastCompletedDate === new Date(Date.now() - 86400000).toDateString()
-            ? userProgress.streak + 1
-            : 1;
+        const today = new Date().toDateString();
+        const streakBonus = userProgress.lastCompletedDate === new Date(Date.now() - 86400000).toDateString()
+          ? userProgress.streak + 1
+          : 1;
 
-          const newXP = userProgress.xp + totalXP;
-          const newLevel = Math.floor(newXP / 1000) + 1;
+        const newXP = userProgress.xp + totalXP;
+        const newLevel = Math.floor(newXP / 1000) + 1;
 
+        setUserProgress(prev => ({
+          ...prev,
+          completedSubtopics: newCompletedSubtopics,
+          xp: newXP,
+          level: newLevel,
+          streak: streakBonus,
+          lastCompletedDate: today
+        }));
+
+        const allSubtopicsCompleted = topic.subtopics.every(s =>
+          newCompletedSubtopics[selectedTopic.topicId]?.includes(s.id)
+        );
+
+        if (allSubtopicsCompleted) {
           setUserProgress(prev => ({
             ...prev,
-            completedSubtopics: newCompletedSubtopics,
-            xp: newXP,
-            level: newLevel,
-            streak: streakBonus,
-            lastCompletedDate: today
+            completedTopics: [...prev.completedTopics, topic.id]
           }));
-
-          const allSubtopicsCompleted = topic.subtopics.every(s =>
-            newCompletedSubtopics[selectedTopic.topicId]?.includes(s.id)
-          );
-
-          if (allSubtopicsCompleted) {
-            setUserProgress(prev => ({
-              ...prev,
-              completedTopics: [...prev.completedTopics, topic.id]
-            }));
-          }
         }
       }
     }
@@ -315,8 +309,10 @@ const CProgramming = () => {
     topic: coursePhases.find(p => p.id === selectedTopic.phaseId)?.topics.find(t => t.id === selectedTopic.topicId)
   } : null;
 
+  const AnimatePresenceComponent = AnimatePresence || (({ children }) => <>{children}</>);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] to-[#16213e] text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#1C2526] to-[#2E2E2E] text-[#F5F6F5] p-8 font-sans">
       {showConfetti && <Confetti width={width} height={height} />}
       
       <style>
@@ -326,85 +322,105 @@ const CProgramming = () => {
             50% { transform: scale(1.5) rotate(180deg); opacity: 0.8; }
             100% { transform: scale(0) rotate(360deg); opacity: 0; }
           }
-          @keyframes pulseGlow {
-            0% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.4); }
-            50% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); }
-            100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.4); }
+          @keyframes flickerGlow {
+            0% { box-shadow: 0 0 5px rgba(139, 0, 0, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(139, 0, 0, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(139, 0, 0, 0.4); }
+          }
+          .horror-bg {
+            background-image: url('https://www.transparenttextures.com/patterns/dark-mosaic.png');
+            background-size: 100px 100px;
+          }
+          .glow-hover:hover {
+            animation: flickerGlow 1.5s infinite;
+          }
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+          .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .horror-button {
+            background-color: #8B0000;
+            color: #F5F6F5;
+            border: 1px solid #468284;
+            border-radius: 8px;
+            padding: 4px 12px;
+            transition: background-color 0.2s ease;
+          }
+          .horror-button:hover {
+            background-color: #A52A2A;
           }
         `}
       </style>
-      
-      <div className="max-w-full mx-auto relative">
-        <div className="sticky top-0 z-50 bg-gradient-to-r from-[#1a1a2e]/95 via-[#16213e]/95 to-[#1a1a2e]/95 backdrop-blur-md p-4 rounded-b-xl shadow-lg border-b border-blue-500/20 mb-8">
-          <div className="flex items-center justify-between max-w-6xl mx-auto">
-            <div className="flex items-center gap-6">
-              <motion.div 
-                className="flex items-center gap-2 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/30"
-                whileHover={{ scale: 1.05 }}
-              >
-                <Star className="w-5 h-5 text-blue-400 animate-pulse" />
-                <span className="font-bold text-blue-200">{userProgress.xp}</span>
-                <span className="text-sm text-blue-300/70">XP</span>
-              </motion.div>
-              <motion.div 
-                className="flex items-center gap-2 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/30"
-                whileHover={{ scale: 1.05 }}
-              >
-                <Trophy className="w-5 h-5 text-blue-400" />
-                <span className="font-bold text-blue-200">Lv. {userProgress.level}</span>
-              </motion.div>
-              <motion.div 
-                className="flex items-center gap-2 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/30"
-                whileHover={{ scale: 1.05 }}
-              >
-                <Flame className="w-5 h-5 text-blue-400 animate-[pulseGlow_2s_infinite]" />
-                <span className="font-bold text-blue-200">{userProgress.streak}</span>
-                <span className="text-sm text-blue-300/70">Streak</span>
-              </motion.div>
-            </div>
-            <div className="w-1/3 h-2 bg-gray-700/30 rounded-full overflow-hidden">
-              <motion.div 
-                className="h-full bg-gradient-to-r from-blue-400 to-blue-600"
-                initial={{ width: 0 }}
-                animate={{ width: `${((userProgress.xp % 1000) / 1000) * 100}%` }}
-                transition={{ duration: 1, ease: "easeOut" }}
-              />
-            </div>
+
+      <div className="max-w-6xl mx-auto relative">
+        <div className="fixed top-4 left-4 z-50">
+          <motion.button
+            onClick={() => window.history.back()}
+            whileHover={{ scale: 1.05, boxShadow: "0 0 10px rgba(139, 0, 0, 0.5)" }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="horror-button flex items-center gap-2 text-sm shadow-md font-bold"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Flee the Shadows
+          </motion.button>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="fixed top-4 right-4 flex items-center gap-4 bg-[#1C2526]/90 p-3 rounded-lg shadow-[0_0_15px_rgba(139,0,0,0.2)] border border-[#468284]/30 z-20"
+        >
+          <div className="flex items-center gap-2">
+            <Star className="w-5 h-5 text-[#8B0000]" />
+            <span className="font-bold text-[#F5F6F5]">{userProgress.xp} Dread</span>
           </div>
-        </div>
+          <div className="flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-[#468284]" />
+            <span className="font-bold text-[#F5F6F5]">Level {userProgress.level}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Fire className="w-5 h-5 text-[#8B0000] animate-[flickerGlow_2s_infinite]" />
+            <span className="font-bold text-[#F5F6F5]">{userProgress.streak} Nights</span>
+          </div>
+        </motion.div>
 
-        <div className="mb-8">
-          <BackButton />
-        </div>
-
-        <div className="flex justify-center mb-12">
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="relative w-24 h-24 md:w-32 md:h-32">
-            <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl animate-pulse" />
-            <div className="relative w-full h-full rounded-full border-2 border-blue-400/50 flex items-center justify-center bg-gradient-to-b from-blue-500/10 to-blue-500/30">
-              <span className="text-4xl md:text-5xl select-none">{coursePhases[currentPhaseIndex].icon}</span>
-            </div>
-          </motion.div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="mb-12 p-6 horror-bg bg-[#1C2526]/90 rounded-lg shadow-[0_0_15px_rgba(139,0,0,0.2)] border border-[#468284]/30"
+        >
+          <div className="flex items-center gap-4 mb-4">
+            <Skull className="w-8 h-8 text-[#8B0000]" />
+            <h2 className="text-3xl font-bold text-[#F5F6F5]">C: Haunted Code Mausoleum</h2>
+          </div>
+          <p className="text-lg text-[#468284]">Face the terrors of C to conquer its darkest secrets!</p>
+        </motion.div>
 
         <div className="relative mb-12">
           <button
             onClick={handlePrevPhase}
-            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-black/50 rounded-full backdrop-blur-sm transition-opacity duration-300 ${
-              currentPhaseIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:bg-black/70'
+            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#1C2526]/50 rounded-full backdrop-blur-sm transition-opacity duration-300 ${
+              currentPhaseIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:bg-[#8B0000]/20'
             }`}
             disabled={currentPhaseIndex === 0}
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-6 h-6 text-[#8B0000]" />
           </button>
 
           <button
             onClick={handleNextPhase}
-            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-black/50 rounded-full backdrop-blur-sm transition-opacity duration-300 ${
-              currentPhaseIndex === coursePhases.length - 1 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:bg-black/70'
+            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-[#1C2526]/50 rounded-full backdrop-blur-sm transition-opacity duration-300 ${
+              currentPhaseIndex === coursePhases.length - 1 ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:bg-[#8B0000]/20'
             }`}
             disabled={currentPhaseIndex === coursePhases.length - 1}
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-6 h-6 text-[#8B0000]" />
           </button>
 
           <div 
@@ -421,13 +437,11 @@ const CProgramming = () => {
               return (
                 <motion.div
                   key={phase.id}
-                  initial={{ scale: 0.8, opacity: 0.6 }}
+                  initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: index === currentPhaseIndex ? 1 : 0.8, opacity: index === currentPhaseIndex ? 1 : 0.6 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  whileHover={{ scale: index === currentPhaseIndex ? 1.02 : 0.85, transition: { duration: 0.15 } }}
-                  whileTap={{ scale: index === currentPhaseIndex ? 0.98 : 0.8, transition: { duration: 0.1 } }}
-                  className={`relative min-w-[300px] md:min-w-[400px] h-[400px] md:h-[500px] rounded-xl overflow-hidden flex-shrink-0 cursor-pointer select-none ${
-                    index === currentPhaseIndex ? 'ring-2 ring-blue-500/50' : 'filter grayscale'
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className={`relative min-w-[300px] md:min-w-[400px] h-[400px] md:h-[500px] rounded-lg overflow-hidden flex-shrink-0 cursor-pointer horror-bg bg-[#1C2526] border border-[#468284]/30 shadow-[0_0_15px_rgba(139,0,0,0.2)] ${
+                    index === currentPhaseIndex ? 'ring-4 ring-[#8B0000]' : 'filter grayscale'
                   }`}
                   onClick={() => handlePhaseClick(index)}
                   style={{ scrollSnapAlign: 'center' }}
@@ -435,95 +449,81 @@ const CProgramming = () => {
                   <motion.div
                     className="relative w-full h-full transition-all preserve-3d"
                     animate={{ rotateY: flippedPhase === phase.id ? 180 : 0 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
                   >
-                    <div 
-                      className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-xl"
-                      style={{
-                        backgroundImage: `url(${phase.backgroundImage || '/placeholder-image.jpg'})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        opacity: 0.50
-                      }}
-                    />
-
-                    <div className="absolute inset-0 backface-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-xl" />
-                      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-                      <div className="relative h-full p-6 flex flex-col">
-                        <div className="text-4xl mb-4 select-none">{phase.icon}</div>
-                        <h3 className="text-xl font-bold mb-2 select-none">{phase.title}</h3>
-                        <p className="text-sm text-gray-400 mb-4 select-none">{phase.description}</p>
-                        <div className="mt-4">
-                          <div className="flex justify-between text-xs mb-1 text-blue-300/70">
-                            <span>Progress</span>
-                            <span>{Math.round(progress)}%</span>
-                          </div>
-                          <div className="h-3 bg-gray-700/30 rounded-full overflow-hidden relative">
-                            <motion.div
-                              className="h-full bg-gradient-to-r from-blue-400 to-blue-600"
-                              initial={{ width: 0 }}
-                              animate={{ width: `${progress}%` }}
-                              transition={{ duration: 1, ease: "easeOut" }}
-                            >
-                              <div className="absolute inset-0 bg-blue-400/20 animate-pulse" />
-                            </motion.div>
-                          </div>
+                    <div className="absolute inset-0 backface-hidden p-6 flex flex-col">
+                      <Skull className="w-12 h-12 text-[#8B0000] mb-4 mx-auto" />
+                      <h3 className="text-2xl font-bold mb-2 text-center text-[#F5F6F5]">{phase.title}</h3>
+                      <p className="text-sm text-[#468284] mb-4 text-center">{phase.description}</p>
+                      <div className="mb-4">
+                        <div className="flex justify-between text-sm mb-1 text-[#468284]">
+                          <span>Survival Progress</span>
+                          <span>{Math.round(progress)}%</span>
                         </div>
-                        {index === currentPhaseIndex && (
-                          <motion.button
-                            onClick={(e) => handlePhaseStart(phase.id, e)}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="mt-auto px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg flex items-center justify-center gap-2 group select-none relative overflow-hidden"
-                          >
-                            {sparklePhase === phase.id ? (
-                              <AlertCircle className="w-5 h-5 text-blue-400 animate-spin" style={{ animationDuration: '0.5s' }} />
-                            ) : (
-                              <div className="relative">
-                                <Play className="w-5 h-5 group-hover:text-blue-400 transition-colors duration-150" />
-                                <div className="absolute inset-0 bg-blue-400/20 rounded-full filter blur-sm transform scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                              </div>
-                            )}
-                            Flip to see topics
-                          </motion.button>
-                        )}
+                        <div className="h-2 bg-[#2E2E2E] rounded-full overflow-hidden">
+                          <motion.div
+                            className="h-full bg-gradient-to-r from-[#8B0000] to-[#468284] rounded-full transition-all duration-500"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progress}%` }}
+                          />
+                        </div>
                       </div>
+                      {index === currentPhaseIndex && (
+                        <motion.button
+                          onClick={(e) => handlePhaseStart(phase.id, e)}
+                          whileHover={{ scale: 1.05, boxShadow: "0 0 10px rgba(139, 0, 0, 0.5)" }}
+                          whileTap={{ scale: 0.95 }}
+                          transition={{ duration: 0.2 }}
+                          className="mt-auto mx-auto px-6 py-2 bg-[#8B0000] hover:bg-[#A52A2A] text-[#F5F6F5] rounded-lg flex items-center gap-2 shadow-md font-bold glow-hover"
+                        >
+                          {sparklePhase === phase.id ? (
+                            <AlertCircle className="w-5 h-5 text-[#F5F6F5] animate-spin" style={{ animationDuration: '0.5s' }} />
+                          ) : (
+                            <Flame className="w-5 h-5" />
+                          )}
+                          Enter the Crypt
+                        </motion.button>
+                      )}
                     </div>
 
-                    <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-xl overflow-y-auto">
+                    <div className="absolute inset-0 backface-hidden rotate-y-180 horror-bg bg-[#1C2526] overflow-y-auto border border-[#468284]/30 shadow-[0_0_15px_rgba(139,0,0,0.2)]">
                       <div className="p-6 space-y-4">
-                        <h3 className="text-xl font-bold mb-4">{phase.title} Topics</h3>
+                        <h3 className="text-xl font-bold mb-4 text-center text-[#F5F6F5]">{phase.title} Tombs</h3>
                         {phase.topics.map((topic) => (
                           <motion.div
                             key={topic.id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="backdrop-blur-xl bg-white/10 rounded-xl p-4 border border-white/20"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
+                            className="bg-[#2E2E2E]/50 rounded-lg p-4 border border-[#468284]/20 shadow-inner glow-hover"
                           >
                             <div className="flex items-center justify-between">
                               <div>
-                                <h4 className="font-bold mb-1">{topic.title}</h4>
-                                <p className="text-sm text-gray-400">{topic.description}</p>
+                                <h4 className="font-bold mb-1 text-[#F5F6F5]">{topic.title}</h4>
+                                <p className="text-sm text-[#468284]">{topic.description}</p>
                               </div>
-                              <GlowingButton
+                              <motion.button
                                 onClick={(e) => handleTopicStart(phase.id, topic.id, e)}
-                                className="text-sm font-medium"
+                                whileHover={{ scale: 1.05, boxShadow: "0 0 10px rgba(139, 0, 0, 0.5)" }}
+                                whileTap={{ scale: 0.95 }}
+                                transition={{ duration: 0.2 }}
+                                className="px-4 py-2 bg-[#8B0000] hover:bg-[#A52A2A] text-[#F5F6F5] rounded-lg flex items-center gap-2 shadow-md font-bold"
                               >
-                                <Play className="w-4 h-4" />
-                                <span>View</span>
-                              </GlowingButton>
+                                <Flame className="w-4 h-4" />
+                                <span>Unveil</span>
+                              </motion.button>
                             </div>
                           </motion.div>
                         ))}
                         <motion.button
                           onClick={(e) => handleFlipBack(phase.id, e)}
-                          whileHover={{ scale: 1.05 }}
+                          whileHover={{ scale: 1.05, boxShadow: "0 0 10px rgba(139, 0, 0, 0.5)" }}
                           whileTap={{ scale: 0.95 }}
-                          className="w-full mt-4 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg flex items-center justify-center gap-2 relative overflow-hidden group"
+                          transition={{ duration: 0.2 }}
+                          className="w-full mt-4 px-4 py-2 bg-[#8B0000] hover:bg-[#A52A2A] text-[#F5F6F5] rounded-lg flex items-center justify-center gap-2 shadow-md font-bold glow-hover"
                         >
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          <span className="relative z-10">Flip back</span>
+                          <ChevronLeft className="w-5 h-5" />
+                          Back to Mausoleum
                         </motion.button>
                       </div>
                     </div>
@@ -535,47 +535,57 @@ const CProgramming = () => {
 
           <div className="flex justify-center gap-2 mt-4">
             {coursePhases.map((_, index) => (
-              <button
+              <motion.div
                 key={index}
-                onClick={() => setCurrentPhaseIndex(index)}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentPhaseIndex ? 'w-8 bg-blue-500' : 'bg-white/20 hover:bg-white/40'
+                  index === currentPhaseIndex ? 'w-8 bg-[#8B0000]' : 'bg-[#468284]/50 hover:bg-[#468284]'
                 }`}
+                onClick={() => setCurrentPhaseIndex(index)}
+                whileHover={{ scale: 1.2 }}
               />
             ))}
           </div>
         </div>
 
-        <AnimatePresence>
+        <AnimatePresenceComponent>
           {selectedPhaseAndTopic && selectedPhaseAndTopic.topic && (
             <motion.div
+              key={selectedPhaseAndTopic.phase?.id + "-topics"}
               ref={subtopicsRef}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               className="space-y-4 mt-8"
             >
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold">{selectedPhaseAndTopic.topic.title} Subtopics</h3>
-                <button onClick={() => setSelectedTopic(null)} className="flex items-center gap-2">
+              <div className="flex items-center justify-between horror-bg bg-[#1C2526]/90 p-4 rounded-lg shadow-[0_0_15px_rgba(139,0,0,0.2)] border border-[#468284]/30">
+                <h3 className="text-xl font-bold text-[#F5F6F5]">{selectedPhaseAndTopic.topic.title} Echoes</h3>
+                <motion.button 
+                  onClick={() => setSelectedTopic(null)} 
+                  className="text-[#8B0000] hover:text-[#A52A2A]"
+                  whileHover={{ rotate: 180 }}
+                  transition={{ duration: 0.3 }}
+                >
                   {expandedTopic === selectedPhaseAndTopic.topic.id ? (
                     <ChevronUp className="w-5 h-5" />
                   ) : (
                     <ChevronDown className="w-5 h-5" />
                   )}
-                </button>
+                </motion.button>
               </div>
 
-              <AnimatePresence>
+              <AnimatePresenceComponent>
                 {expandedTopic === selectedPhaseAndTopic.topic.id && (
                   <motion.div
+                    key={selectedPhaseAndTopic.topic.id + "-subtopics"}
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
                     className="space-y-2"
                   >
                     {selectedPhaseAndTopic.topic.subtopics?.map((subtopic, index) => {
-                      const isLocked = isSubtopicLocked(selectedPhaseAndTopic.phase.id, selectedPhaseAndTopic.topic.id, index);
+                      const isLocked = isSubtopicLocked(selectedPhaseAndTopic.phase!.id, selectedPhaseAndTopic.topic.id, index);
                       const isCompleted = userProgress.completedSubtopics[selectedTopic?.topicId]?.includes(subtopic.id);
 
                       return (
@@ -583,51 +593,56 @@ const CProgramming = () => {
                           key={subtopic.id}
                           initial={{ x: -20, opacity: 0 }}
                           animate={{ x: 0, opacity: 1 }}
-                          className={`flex items-center justify-between p-3 rounded-lg backdrop-blur-xl border border-white/10 ${
-                            isLocked ? 'bg-gray-800/70 cursor-not-allowed' : 'bg-white/5'
+                          transition={{ duration: 0.3, ease: "easeOut", delay: index * 0.1 }}
+                          className={`flex items-center justify-between p-3 rounded-lg border border-[#468284]/20 shadow-inner ${
+                            isLocked ? 'bg-[#2E2E2E]/50' : 'bg-[#1C2526]/70'
                           }`}
                         >
                           <div className="flex items-center gap-3">
                             {isCompleted ? (
-                              <CheckCircle className="w-4 h-4 text-green-400" />
+                              <CheckCircle className="w-5 h-5 text-[#468284]" />
                             ) : isLocked ? (
-                              <Lock className="w-4 h-4 text-gray-500" />
+                              <Lock className="w-5 h-5 text-[#468284]" />
                             ) : (
-                              <div className="w-4 h-4 rounded-full border border-gray-500" />
+                              <div className="w-5 h-5 rounded-full border-2 border-[#8B0000]" />
                             )}
-                            <span className={`text-sm ${isLocked ? 'text-gray-500' : 'text-white'}`}>
-                              {subtopic.title}
-                            </span>
+                            <div>
+                              <span className={`text-md font-semibold ${isLocked ? 'text-[#468284]' : 'text-[#F5F6F5]'}`}>
+                                {subtopic.title}
+                              </span>
+                              <p className="text-sm text-[#468284]">Face the horror within!</p>
+                            </div>
                           </div>
                           <motion.button
-                            whileHover={{ scale: isLocked ? 1 : 1.05 }}
+                            whileHover={{ scale: isLocked ? 1 : 1.05, boxShadow: "0 0 10px rgba(139, 0, 0, 0.5)" }}
                             whileTap={{ scale: isLocked ? 1 : 0.95 }}
+                            transition={{ duration: 0.2 }}
                             onClick={() => !isLocked && handleSubtopicStart(selectedPhaseAndTopic.topic.title, subtopic.title)}
-                            className={`px-3 py-1 text-sm rounded-lg transition-all duration-300 flex items-center gap-2 ${
+                            className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm shadow-md ${
                               isLocked 
-                                ? 'bg-gray-600/50 text-gray-500 cursor-not-allowed' 
+                                ? 'bg-[#8B0000]/20 text-[#468284]/50 cursor-not-allowed'
                                 : isCompleted 
-                                  ? 'bg-green-500/20 text-green-400' 
-                                  : 'bg-blue-500/20 hover:bg-blue-500/30 text-white'
+                                ? 'bg-[#468284]/20 text-[#F5F6F5]'
+                                : 'bg-[#8B0000] hover:bg-[#A52A2A] text-[#F5F6F5]'
                             }`}
                             disabled={isLocked || isCompleted}
                           >
                             {isLocked ? (
-                              <Lock className="w-3 h-3" />
+                              <Lock className="w-4 h-4" />
                             ) : (
-                              <Play className="w-3 h-3" />
+                              <Flame className="w-4 h-4" />
                             )}
-                            {isCompleted ? 'Completed' : isLocked ? 'Locked' : 'Start'}
+                            {isCompleted ? 'Exorcised' : isLocked ? 'Sealed' : 'Confront'}
                           </motion.button>
                         </motion.div>
                       );
                     })}
                   </motion.div>
                 )}
-              </AnimatePresence>
+              </AnimatePresenceComponent>
             </motion.div>
           )}
-        </AnimatePresence>
+        </AnimatePresenceComponent>
 
         <CFlashcards
           isOpen={showFlashcards}

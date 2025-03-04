@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Trophy, HelpCircle } from 'lucide-react';
+import { X, Swords, Map as MapIcon, Zap } from 'lucide-react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
-
 import DragDropQuestion from './DragDropQuestion';
 import MatchQuestion from './MatchQuestion';
 import FillQuestion from './FillQuestion';
@@ -16,7 +15,7 @@ import TranslateCodeQuestion from './TranslateCodeQuestion';
 import MultipleSelectionQuestion from './MultipleSelectionQuestion';
 import CodeCorrectionQuestion from './CodeCorrectionQuestion';
 import FillInTheBlank from './FillInTheBlank';
-import JavaVideo from './JavaVideo'; // Added import
+import JavaVideo from './JavaVideo';
 import questionsData from "../../data/quizzes/javaBasics.json";
 
 const componentMap = {
@@ -45,7 +44,7 @@ const JavaQuizPopup: React.FC<JavaQuizPopupProps> = ({ isOpen, onClose, onComple
   const [showConfetti, setShowConfetti] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, any>>({});
-  const [showVideo, setShowVideo] = useState(false); // Added state for video
+  const [showVideo, setShowVideo] = useState(false);
   const { width, height } = useWindowSize();
 
   const findQuestionsForModule = () => {
@@ -55,7 +54,6 @@ const JavaQuizPopup: React.FC<JavaQuizPopupProps> = ({ isOpen, onClose, onComple
     }
 
     console.log("Finding questions for moduleTitle:", moduleTitle);
-
     for (const phase of questionsData) {
       for (const topic of phase.topics) {
         for (const subtopic of topic.subtopics) {
@@ -88,9 +86,9 @@ const JavaQuizPopup: React.FC<JavaQuizPopupProps> = ({ isOpen, onClose, onComple
       setShowConfetti(false);
       setCurrentQuestionIndex(0);
       setAnswers({});
-      setShowVideo(false); // Reset video state
+      setShowVideo(false);
     } else if (isVideoException) {
-      setShowVideo(true); // Show video immediately if exception
+      setShowVideo(true);
     }
   }, [isOpen, isVideoException]);
 
@@ -128,32 +126,33 @@ const JavaQuizPopup: React.FC<JavaQuizPopupProps> = ({ isOpen, onClose, onComple
     setAnswers((prev) => ({ ...prev, [currentQuestionIndex]: answer }));
   };
 
-  const handleHint = () => {
-    // Add hint functionality here later
-  };
-
   const handleVideoClose = () => {
     setShowVideo(false);
-    onClose(); // Close the quiz popup when video is closed
+    onClose();
   };
 
   const handleVideoComplete = () => {
     setShowVideo(false);
-    onComplete(100); // Assume 100% score for video completion, adjust as needed
+    onComplete(100);
   };
 
   if (!isOpen) return null;
 
   if (!questions || questions.length === 0) {
     return (
-      <motion.div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-[#1a1a2e] rounded-2xl p-6 max-w-md w-full m-4 text-center">
-          <p className="text-xl mb-4 text-white">No questions available for this module yet.</p>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+      >
+        <div className="bg-[#0d1b2a] rounded-2xl p-6 max-w-md w-full m-4 text-center border-2 border-[#00d4ff]/30 shadow-[0_0_15px_rgba(0,212,255,0.2)] font-sans">
+          <p className="text-xl text-[#e0f7ff] mb-4">No circuits available for this race yet, racer.</p>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+            className="px-4 py-2 bg-[#00d4ff] hover:bg-[#00b8d4] text-[#0d1b2a] rounded-lg transition-colors shadow-md font-bold"
           >
-            Close
+            Return to Grid
           </button>
         </div>
       </motion.div>
@@ -161,13 +160,20 @@ const JavaQuizPopup: React.FC<JavaQuizPopupProps> = ({ isOpen, onClose, onComple
   }
 
   return (
-    <motion.div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+    >
       <DndProvider backend={HTML5Backend}>
         {showConfetti && <Confetti width={width} height={height} />}
-        <motion.div className="relative w-full max-w-4xl bg-[#1a1a2e] rounded-2xl shadow-2xl p-6 m-4 max-h-[90vh] overflow-y-auto">
+        <motion.div 
+          className="relative w-full max-w-4xl bg-[#0d1b2a] rounded-2xl shadow-2xl p-6 m-4 max-h-[90vh] overflow-y-auto border-2 border-[#00d4ff]/30 shadow-[0_0_15px_rgba(0,212,255,0.2)] font-sans"
+        >
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-lg transition-all"
+            className="absolute top-4 right-4 p-2 hover:bg-[#00d4ff]/20 rounded-lg transition-all text-[#00d4ff]"
           >
             <X className="w-6 h-6" />
           </button>
@@ -175,49 +181,62 @@ const JavaQuizPopup: React.FC<JavaQuizPopupProps> = ({ isOpen, onClose, onComple
           {!showResults && !showVideo ? (
             <>
               <div className="mb-6">
-                <h2 className="text-xl font-bold text-white">{moduleTitle}</h2>
-                <p className="text-sm text-gray-400">Question {currentQuestionIndex + 1} of {questions.length}</p>
-                <div className="w-full bg-gray-700 rounded-full h-2.5 mt-2">
-                  <div
-                    className="bg-blue-500 h-2.5 rounded-full transition-all duration-300"
-                    style={{ width: `${progress}%` }}
-                  ></div>
+                <h2 className="text-2xl font-bold text-[#e0f7ff]">{moduleTitle} Circuit Race</h2>
+                <p className="text-sm text-[#80deea]">Lap {currentQuestionIndex + 1} of {questions.length}</p>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-2 p-3 bg-[#1e3d59]/50 rounded-lg border border-[#00d4ff]/20 shadow-inner"
+                >
+                  <p className="text-sm text-[#80deea] italic">Power through this circuit to dominate the grid!</p>
+                </motion.div>
+              </div>
+
+              <div className="mb-4">
+                <div className="flex justify-between text-sm mb-1 text-[#80deea]">
+                  <span>Race Progress</span>
+                  <span>{Math.round(progress)}%</span>
+                </div>
+                <div className="h-2 bg-[#1e3d59] rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-[#00d4ff] to-[#ff00ff] rounded-full transition-all duration-500"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                  />
                 </div>
               </div>
 
-              {QuestionComponent && <QuestionComponent question={currentQuestion} onAnswer={handleAnswer} />}
+              {QuestionComponent && (
+                <div className="text-[#e0f7ff]">
+                  <QuestionComponent question={currentQuestion} onAnswer={handleAnswer} />
+                </div>
+              )}
 
-              <div className="mt-6 flex justify-between">
-                <button
-                  onClick={handleHint}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
-                >
-                  <HelpCircle className="w-5 h-5" /> Hint
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
-                >
-                  {currentQuestionIndex === questions.length - 1 ? 'Finish' : 'Next'}
-                </button>
-              </div>
+              <button
+                onClick={handleNext}
+                className="mt-6 px-6 py-2 bg-[#00d4ff] hover:bg-[#00b8d4] text-[#0d1b2a] rounded-lg transition-colors w-full shadow-md flex items-center justify-center gap-2 font-bold glow-hover"
+              >
+                <Zap className="w-5 h-5" />
+                {currentQuestionIndex === questions.length - 1 ? 'Finish Race' : 'Next Lap'}
+              </button>
             </>
           ) : showResults ? (
             <div className="text-center py-8">
-              <Trophy className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold mb-4 text-white">Quiz Completed!</h2>
-              <p className="text-xl mb-6 text-white">Your score: {score}%</p>
+              <Swords className="w-16 h-16 text-[#00d4ff] mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-[#e0f7ff] mb-4">Circuit Conquered!</h2>
+              <p className="text-xl text-[#e0f7ff] mb-4">Race Score: {score}%</p>
+              <p className="text-[#80deea] mb-6 italic">You’ve blazed through the track, cyber racer!</p>
               <button
                 onClick={onClose}
-                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+                className="px-6 py-2 bg-[#00d4ff] hover:bg-[#00b8d4] text-[#0d1b2a] rounded-lg transition-colors shadow-md flex items-center justify-center gap-2 mx-auto font-bold glow-hover"
               >
-                Close
+                <MapIcon className="w-5 h-5" />
+                Return to Grid
               </button>
             </div>
           ) : null}
         </motion.div>
 
-        {/* Added JavaVideo component */}
         <JavaVideo
           isOpen={showVideo}
           onClose={handleVideoClose}

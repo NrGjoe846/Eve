@@ -1,3 +1,4 @@
+// src/components/Dashboard.tsx
 import React from 'react';
 import { GraduationCap, Code, Atom, Trophy, Users, Activity, Terminal, Code2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -8,7 +9,7 @@ import NextLessonCard from './NextLessonCard';
 import DailyChallenge from './DailyChallenge';
 import AchievementBadge from './gamification/AchievementBadge';
 import FloatingCompiler from './FloatingCompiler';
-import ProgrammingCourses from './courses/ProgrammingCourses';
+import CodeMastery from './courses/CodeMastery'; // Imported CodeMastery
 
 const Dashboard = () => {
   const recentAchievements = [
@@ -95,9 +96,10 @@ const Dashboard = () => {
               </div>
             </section>
 
-            {/* Programming Courses */}
+            {/* Code Mastery Card */}
             <section className="animate-slide-up-delayed-3">
-              <ProgrammingCourses />
+              <h2 className="text-2xl font-bold mb-6 text-gray-200">Begin Your Coding Quest</h2>
+              <CodeMastery />
             </section>
 
             {/* Explore Learning Paths */}
