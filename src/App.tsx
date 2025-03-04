@@ -1,3 +1,4 @@
+// src/App.tsx
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -10,18 +11,18 @@ import PythonFundamentals from './components/courses/PythonFundamentals';
 import CProgramming from './components/courses/CProgramming';
 import JavaProgramming from './components/courses/JavaProgramming';
 import ProgrammingCourses from './components/courses/ProgrammingCourses';
+import CodeMastery from './components/courses/CodeMastery'; // Added import
 import ChallengeCategories from './components/challenges/ChallengeCategories';
 import LanguageSelection from './components/challenges/LanguageSelection';
 import LevelSelection from './components/challenges/LevelSelection';
 import DailyChallenge from './components/challenges/DailyChallenge';
-import JavaChallenge from './components/challenges/JavaChallenge.tsx';
+import JavaChallenge from './components/challenges/JavaChallenge';
 import InterviewBot from './components/interview/InterviewBot';
 import AptitudeTest from './components/aptitude/AptitudeTest';
 import About from './components/About';
 import AchievementsPage from './components/achievements/AchievementsPage';
 import RewardsPage from './components/rewards/RewardsPage';
 import Store from './components/Store';
-
 
 function App() {
   return (
@@ -58,8 +59,6 @@ function App() {
               </ProtectedRoute>
             } 
           />
-         
-
           {/* Achievements */}
           <Route 
             path="/achievements" 
