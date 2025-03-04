@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Trophy, HelpCircle } from 'lucide-react';
+import { X, Skull, Map as MapIcon, Flame } from 'lucide-react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
-
 import DragDropQuestion from './DragDropQuestion';
 import MatchQuestion from './MatchQuestion';
 import FillQuestion from './FillQuestion';
@@ -16,7 +15,7 @@ import TranslateCodeQuestion from './TranslateCodeQuestion';
 import MultipleSelectionQuestion from './MultipleSelectionQuestion';
 import CodeCorrectionQuestion from './CodeCorrectionQuestion';
 import FillInTheBlank from './FillInTheBlank';
-import CVideo from './CVideo'; // Added import
+import CVideo from './CVideo';
 import questionsData from "../../data/quizzes/cBasics.json";
 
 const componentMap = {
@@ -45,7 +44,7 @@ const CQuizPopup: React.FC<CQuizPopupProps> = ({ isOpen, onClose, onComplete, mo
   const [showConfetti, setShowConfetti] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, any>>({});
-  const [showVideo, setShowVideo] = useState(false); // Added state for video
+  const [showVideo, setShowVideo] = useState(false);
   const { width, height } = useWindowSize();
 
   const findQuestionsForModule = () => {
@@ -55,7 +54,6 @@ const CQuizPopup: React.FC<CQuizPopupProps> = ({ isOpen, onClose, onComplete, mo
     }
 
     console.log("Finding questions for moduleTitle:", moduleTitle);
-
     for (const phase of questionsData) {
       for (const topic of phase.topics) {
         for (const subtopic of topic.subtopics) {
@@ -128,10 +126,6 @@ const CQuizPopup: React.FC<CQuizPopupProps> = ({ isOpen, onClose, onComplete, mo
     setAnswers((prev) => ({ ...prev, [currentQuestionIndex]: answer }));
   };
 
-  const handleHint = () => {
-    // Add hint functionality here later
-  };
-
   const handleVideoClose = () => {
     setShowVideo(false);
     onClose();
@@ -139,21 +133,26 @@ const CQuizPopup: React.FC<CQuizPopupProps> = ({ isOpen, onClose, onComplete, mo
 
   const handleVideoComplete = () => {
     setShowVideo(false);
-    onComplete(100); // Assume 100% score for video completion, adjust as needed
+    onComplete(100);
   };
 
   if (!isOpen) return null;
 
   if (!questions || questions.length === 0) {
     return (
-      <motion.div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-[#1a1a2e] rounded-2xl p-6 max-w-md w-full m-4 text-center">
-          <p className="text-xl mb-4 text-white">No questions available for this module yet.</p>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+      >
+        <div className="horror-bg bg-[#1C2526] rounded-2xl p-6 max-w-md w-full m-4 text-center border-2 border-[#468284]/30 shadow-[0_0_15px_rgba(139,0,0,0.2)] font-sans">
+          <p className="text-xl text-[#F5F6F5] mb-4">No hauntings await in this crypt yet, survivor.</p>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+            className="px-4 py-2 bg-[#8B0000] hover:bg-[#A52A2A] text-[#F5F6F5] rounded-lg transition-colors shadow-md font-bold glow-hover"
           >
-            Close
+            Flee the Mausoleum
           </button>
         </div>
       </motion.div>
@@ -161,13 +160,20 @@ const CQuizPopup: React.FC<CQuizPopupProps> = ({ isOpen, onClose, onComplete, mo
   }
 
   return (
-    <motion.div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+    >
       <DndProvider backend={HTML5Backend}>
         {showConfetti && <Confetti width={width} height={height} />}
-        <motion.div className="relative w-full max-w-4xl bg-[#1a1a2e] rounded-2xl shadow-2xl p-6 m-4 max-h-[90vh] overflow-y-auto">
+        <motion.div 
+          className="relative w-full max-w-4xl horror-bg bg-[#1C2526] rounded-2xl shadow-2xl p-6 m-4 max-h-[90vh] overflow-y-auto border-2 border-[#468284]/30 shadow-[0_0_15px_rgba(139,0,0,0.2)] font-sans"
+        >
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-lg transition-all"
+            className="absolute top-4 right-4 p-2 hover:bg-[#8B0000]/20 rounded-lg transition-all text-[#8B0000]"
           >
             <X className="w-6 h-6" />
           </button>
@@ -175,43 +181,57 @@ const CQuizPopup: React.FC<CQuizPopupProps> = ({ isOpen, onClose, onComplete, mo
           {!showResults && !showVideo ? (
             <>
               <div className="mb-6">
-                <h2 className="text-xl font-bold text-white">{moduleTitle}</h2>
-                <p className="text-sm text-gray-400">Question {currentQuestionIndex + 1} of {questions.length}</p>
-                <div className="w-full bg-gray-700 rounded-full h-2.5 mt-2">
-                  <div
-                    className="bg-blue-500 h-2.5 rounded-full transition-all duration-300"
-                    style={{ width: `${progress}%` }}
-                  ></div>
+                <h2 className="text-2xl font-bold text-[#F5F6F5]">{moduleTitle} Haunting</h2>
+                <p className="text-sm text-[#468284]">Specter {currentQuestionIndex + 1} of {questions.length}</p>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-2 p-3 bg-[#2E2E2E]/50 rounded-lg border border-[#468284]/20 shadow-inner"
+                >
+                  <p className="text-sm text-[#468284] italic">Banish these spirits to survive the night!</p>
+                </motion.div>
+              </div>
+
+              <div className="mb-4">
+                <div className="flex justify-between text-sm mb-1 text-[#468284]">
+                  <span>Exorcism Progress</span>
+                  <span>{Math.round(progress)}%</span>
+                </div>
+                <div className="h-2 bg-[#2E2E2E] rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-[#8B0000] to-[#468284] rounded-full transition-all duration-500"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                  />
                 </div>
               </div>
 
-              {QuestionComponent && <QuestionComponent question={currentQuestion} onAnswer={handleAnswer} />}
+              {QuestionComponent && (
+                <div className="text-[#F5F6F5]">
+                  <QuestionComponent question={currentQuestion} onAnswer={handleAnswer} />
+                </div>
+              )}
 
-              <div className="mt-6 flex justify-between">
-                <button
-                  onClick={handleHint}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
-                >
-                  <HelpCircle className="w-5 h-5" /> Hint
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
-                >
-                  {currentQuestionIndex === questions.length - 1 ? 'Finish' : 'Next'}
-                </button>
-              </div>
+              <button
+                onClick={handleNext}
+                className="mt-6 px-6 py-2 bg-[#8B0000] hover:bg-[#A52A2A] text-[#F5F6F5] rounded-lg transition-colors w-full shadow-md flex items-center justify-center gap-2 font-bold glow-hover"
+              >
+                <Flame className="w-5 h-5" />
+                {currentQuestionIndex === questions.length - 1 ? 'Banish All' : 'Next Spirit'}
+              </button>
             </>
           ) : showResults ? (
             <div className="text-center py-8">
-              <Trophy className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold mb-4 text-white">Quiz Completed!</h2>
-              <p className="text-xl mb-6 text-white">Your score: {score}%</p>
+              <Skull className="w-16 h-16 text-[#8B0000] mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-[#F5F6F5] mb-4">Spirits Banished!</h2>
+              <p className="text-xl text-[#F5F6F5] mb-4">Fear Factor: {score}%</p>
+              <p className="text-[#468284] mb-6 italic">You’ve survived the haunting, brave soul!</p>
               <button
                 onClick={onClose}
-                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+                className="px-6 py-2 bg-[#8B0000] hover:bg-[#A52A2A] text-[#F5F6F5] rounded-lg transition-colors shadow-md flex items-center justify-center gap-2 mx-auto font-bold glow-hover"
               >
-                Close
+                <MapIcon className="w-5 h-5" />
+                Escape the Crypt
               </button>
             </div>
           ) : null}
