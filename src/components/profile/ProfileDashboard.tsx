@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSpring, animated } from 'react-spring';
 import { useWindowSize } from 'react-use';
 import {
   Trophy, Star, Code, Book, Timer, Target, Award, GitBranch, Zap,
   Activity, Wallet, ChevronRight, Users, Sword, Shield, Crown,
-  Gamepad, Gift, Sparkles, Map, Brain, Cpu, Globe, Hexagon
+  Gamepad, Gift, Sparkles, Map, Brain, Cpu, Globe, Hexagon, Share2
 } from 'lucide-react';
 import BackButton from '../BackButton';
 
 const ProfileDashboard = () => {
   const [showAvatarCustomization, setShowAvatarCustomization] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
-  const [selectedChallenge, setSelectedChallenge] = useState(null);
+  const [showShareMenu, setShowShareMenu] = useState(false);
   const { width, height } = useWindowSize();
 
   // User profile state
@@ -57,14 +57,7 @@ const ProfileDashboard = () => {
     { rank: 3, name: 'CyberPilot', points: 13890, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John', specialty: 'AI Systems' },
   ];
 
-  // Achievements and badges
-  const achievements = [
-    { id: 1, name: 'Neural Pioneer', icon: '🧠', rarity: 'Legendary', xp: 5000 },
-    { id: 2, name: 'Quantum Sage', icon: '⚡', rarity: 'Epic', xp: 3000 },
-    { id: 3, name: 'Code Architect', icon: '🏗️', rarity: 'Rare', xp: 2000 },
-  ];
-
-  // Active challenge missions (renamed from active quests)
+  // Active challenge missions
   const activeMissions = [
     { id: 1, title: 'Neural Network Mastery', progress: 75, reward: '500 QT' },
     { id: 2, title: 'Quantum Algorithm Challenge', progress: 45, reward: '750 QT' },
@@ -105,6 +98,17 @@ const ProfileDashboard = () => {
     setUserProfile({ ...userProfile, avatar: newAvatarUrl });
     setShowAvatarCustomization(false);
   };
+
+  // Share functionality
+  const shareUrl = window.location.href; // Dynamic URL for sharing
+  const shareText = `Check out my profile on this awesome platform! Rank: ${gameStats.rank}, Power Level: ${gameStats.powerLevel}`;
+
+  const shareOptions = [
+    { name: 'Facebook', url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
+    { name: 'Twitter', url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}` },
+    { name: 'LinkedIn', url: `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}` },
+    { name: 'WhatsApp', url: `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}` },
+  ];
 
   return (
     <div className="min-h-screen bg-[#0B0B15] text-white p-8 relative overflow-hidden">
@@ -176,33 +180,42 @@ const ProfileDashboard = () => {
                     <img
                       src={userProfile.avatar}
                       alt="Profile Avatar"
-                      className="w-full h-full rounded-full border-4 border-white/20"
+                      className="w-full h-full rounded-full border-4 border-white/20 object-cover"
                       onError={(e) => (e.target.src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=fallback')}
                     />
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setShowAvatarCustomization(true)}
-                      className="absolute -bottom-2 -right-2 p-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full shadow-lg"
+                      className="absolute bottom-0 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full shadow-lg text-sm font-medium"
                     >
-                      <Sparkles className="w-5 h-5" />
+                      Edit Avatar
                     </motion.button>
                   </motion.div>
                 </div>
 
-                <div className="text-center mt-4 space-y-2">
+                <div className="text-center mt-6 space-y-2">
                   <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
                     {userProfile.headline}
                   </h2>
                   <p className="text-blue-400">Level {Math.floor(gameStats.powerLevel / 100)}</p>
                   <p className="text-sm text-gray-400">{userProfile.contentFocus}</p>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    onClick={() => setShowProfileEdit(true)}
-                    className="mt-2 px-4 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm"
-                  >
-                    Edit Profile
-                  </motion.button>
+                  <div className="flex justify-center gap-4">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      onClick={() => setShowProfileEdit(true)}
+                      className="mt-2 px-4 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm"
+                    >
+                      Edit Profile
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      onClick={() => setShowShareMenu(!showShareMenu)}
+                      className="mt-2 px-4 py-1 bg-purple-500/20 text-purple-400 rounded-full text-sm flex items-center gap-2"
+                    >
+                      <Share2 className="w-4 h-4" /> Share
+                    </motion.button>
+                  </div>
                   <div className="flex items-center justify-center gap-2">
                     <Zap className="w-5 h-5 text-yellow-400" />
                     <animated.span className="font-bold">
@@ -210,6 +223,30 @@ const ProfileDashboard = () => {
                     </animated.span>
                   </div>
                 </div>
+
+                {/* Share Menu Dropdown */}
+                <AnimatePresence>
+                  {showShareMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-48 right-0 bg-[#1A1A2E] rounded-lg shadow-lg p-2 z-50"
+                    >
+                      {shareOptions.map((option) => (
+                        <a
+                          key={option.name}
+                          href={option.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block px-4 py-2 text-sm text-white hover:bg-white/10 rounded-md"
+                        >
+                          {option.name}
+                        </a>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <div className="grid grid-cols-2 gap-4 mt-6 w-full">
                   <div className="relative p-4 bg-white/5 rounded-lg overflow-hidden group hover:bg-white/10 transition-all duration-300">
@@ -227,40 +264,6 @@ const ProfileDashboard = () => {
                     <div className="text-sm text-gray-400">Energy Level</div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-
-            {/* Achievements Showcase */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="backdrop-blur-xl bg-white/5 rounded-2xl p-6 border border-white/10"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <Trophy className="w-6 h-6 text-yellow-400" />
-                  <h2 className="text-xl font-bold">Achievements</h2>
-                </div>
-                <span className="text-sm text-gray-400">{achievements.length} Unlocked</span>
-              </div>
-              <div className="space-y-4">
-                {achievements.map((achievement) => (
-                  <motion.div
-                    key={achievement.id}
-                    whileHover={{ scale: 1.02 }}
-                    className="relative p-4 bg-white/5 rounded-lg border border-white/10 overflow-hidden group"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                    <div className="relative flex items-center gap-4">
-                      <div className="text-4xl">{achievement.icon}</div>
-                      <div>
-                        <h3 className="font-bold">{achievement.name}</h3>
-                        <p className="text-sm text-gray-400">{achievement.rarity}</p>
-                      </div>
-                      <div className="ml-auto text-yellow-400">+{achievement.xp} XP</div>
-                    </div>
-                  </motion.div>
-                ))}
               </div>
             </motion.div>
           </div>
@@ -399,7 +402,7 @@ const ProfileDashboard = () => {
               </div>
             </motion.div>
 
-            {/* Reward Collection (renamed from Neural Artifacts) */}
+            {/* Reward Collection */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
