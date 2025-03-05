@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
 import { User, Settings, Bell, Menu, X, Gift, Compass, BookOpen, Trophy, Store } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom'; // Added useLocation for active state
 import { motion } from 'framer-motion';
 import NotificationsPanel from './notifications/NotificationsPanel';
 import SettingsPanel from './settings/SettingsPanel';
-import logoImage from '../assets/logo.png';  // Import logo from assets folder
+import logoImage from '../assets/logo.png'; // Import logo from assets folder
 
 const Navigation = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const location = useLocation(); // To track current route for active styling
 
   const menuItems = [
     { icon: <Compass className="w-5 h-5" />, label: 'Explore', path: '/about' },
-    { icon: <BookOpen className="w-5 h-5" />, label: 'My Courses', path: '/dashboard' },
+    { icon: <BookOpen className="w-5 h-5" />, label: 'My Courses', path: '/courses' }, // Updated path to '/courses'
     { icon: <Trophy className="w-5 h-5" />, label: 'Achievements', path: '/achievements' },
     { icon: <Gift className="w-5 h-5" />, label: 'Rewards', path: '/rewards' },
-    { icon: <Store className="w-5 h-5" />, label: 'Store', path: '/store' }
+    { icon: <Store className="w-5 h-5" />, label: 'Store', path: '/store' },
   ];
 
   return (
@@ -25,12 +26,7 @@ const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-2">
-              {/* Using imported logo image */}
-              <img 
-                src={logoImage} 
-                alt="UNAI Verse Logo" 
-                className="w-8 h-8"
-              />
+              <img src={logoImage} alt="UNAI Verse Logo" className="w-8 h-8" />
               <span className="text-xl font-bold">UNAI TECH</span>
             </Link>
 
@@ -44,35 +40,44 @@ const Navigation = () => {
                 >
                   <Link
                     to={item.path}
-                    className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-white/10 transition-all duration-300"
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 ${
+                      location.pathname === item.path
+                        ? 'bg-gradient-to-r from-teal-500 to-purple-600 text-white shadow-lg'
+                        : 'bg-gradient-to-r from-teal-400 to-purple-500 text-white hover:from-teal-500 hover:to-purple-600'
+                    } ${
+                      item.label === 'My Courses' ? 'relative overflow-hidden' : ''
+                    }`} // Special styling for My Courses
                   >
                     {item.icon}
                     <span>{item.label}</span>
+                    {item.label === 'My Courses' && (
+                      <span className="absolute inset-0 bg-white/20 animate-pulse pointer-events-none" />
+                    )}
                   </Link>
                 </motion.div>
               ))}
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-6">
-            <button 
+            <button
               className="nav-icon-button relative"
               onClick={() => setShowNotifications(!showNotifications)}
             >
               <Bell className="w-6 h-6" />
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
             </button>
-            
-            <button 
+
+            <button
               className="nav-icon-button"
               onClick={() => setShowSettings(!showSettings)}
             >
               <Settings className="w-6 h-6" />
             </button>
-            
-            <Link 
+
+            <Link
               to="/profile"
-              className="flex items-center space-x-2 bg-blue-500/20 hover:bg-blue-500/30 px-4 py-2 rounded-full transition-all duration-300"
+              className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gradient-to-r from-teal-400 to-purple-500 text-white hover:from-teal-500 hover:to-purple-600 transition-all duration-300"
             >
               <User className="w-5 h-5" />
               <span>Profile</span>
@@ -95,7 +100,11 @@ const Navigation = () => {
               <Link
                 key={index}
                 to={item.path}
-                className="flex items-center space-x-2 px-4 py-3 hover:bg-white/10 transition-all duration-300"
+                className={`flex items-center space-x-2 px-4 py-3 rounded-full transition-all duration-300 ${
+                  location.pathname === item.path
+                    ? 'bg-gradient-to-r from-teal-500 to-purple-600 text-white'
+                    : 'bg-gradient-to-r from-teal-400 to-purple-500 text-white hover:from-teal-500 hover:to-purple-600'
+                }`}
                 onClick={() => setShowMobileMenu(false)}
               >
                 {item.icon}
@@ -107,14 +116,10 @@ const Navigation = () => {
       </div>
 
       {/* Notifications Panel */}
-      {showNotifications && (
-        <NotificationsPanel onClose={() => setShowNotifications(false)} />
-      )}
+      {showNotifications && <NotificationsPanel onClose={() => setShowNotifications(false)} />}
 
       {/* Settings Panel */}
-      {showSettings && (
-        <SettingsPanel onClose={() => setShowSettings(false)} />
-      )}
+      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
     </nav>
   );
 };
