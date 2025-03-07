@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
-import { User, Settings, Bell, Menu, X, Gift, Compass, BookOpen, Trophy, Store } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom'; // Added useLocation for active state
+import { User, Settings, Bell, Menu, X, Gift, Compass, BookOpen, Trophy, Store, Users } from 'lucide-react'; // Added Users for Guild icon
+import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import NotificationsPanel from './notifications/NotificationsPanel';
 import SettingsPanel from './settings/SettingsPanel';
-import logoImage from '../assets/logo.png'; // Import logo from assets folder
+import logoImage from '../assets/logo.png';
 
 const Navigation = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const location = useLocation(); // To track current route for active styling
+  const location = useLocation();
 
   const menuItems = [
     { icon: <Compass className="w-5 h-5" />, label: 'Explore', path: '/about' },
-    { icon: <BookOpen className="w-5 h-5" />, label: 'My Courses', path: '/courses' }, // Updated path to '/courses'
+    { icon: <BookOpen className="w-5 h-5" />, label: 'My Courses', path: '/courses' },
     { icon: <Trophy className="w-5 h-5" />, label: 'Achievements', path: '/achievements' },
+    { icon: <Users className="w-5 h-5" />, label: 'Guild', path: '/guild' }, // Added Guild menu item
     { icon: <Gift className="w-5 h-5" />, label: 'Rewards', path: '/rewards' },
     { icon: <Store className="w-5 h-5" />, label: 'Store', path: '/store' },
   ];
@@ -46,7 +47,7 @@ const Navigation = () => {
                         : 'bg-gradient-to-r from-teal-400 to-purple-500 text-white hover:from-teal-500 hover:to-purple-600'
                     } ${
                       item.label === 'My Courses' ? 'relative overflow-hidden' : ''
-                    }`} // Special styling for My Courses
+                    }`}
                   >
                     {item.icon}
                     <span>{item.label}</span>
