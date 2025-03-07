@@ -11,7 +11,7 @@ import PythonFundamentals from './components/courses/PythonFundamentals';
 import CProgramming from './components/courses/CProgramming';
 import JavaProgramming from './components/courses/JavaProgramming';
 import ProgrammingCourses from './components/courses/ProgrammingCourses';
-import CodeMastery from './components/courses/CodeMastery'; // Added import
+import CodeMastery from './components/courses/CodeMastery';
 import ChallengeCategories from './components/challenges/ChallengeCategories';
 import LanguageSelection from './components/challenges/LanguageSelection';
 import LevelSelection from './components/challenges/LevelSelection';
@@ -22,7 +22,7 @@ import AptitudeTest from './components/aptitude/AptitudeTest';
 import About from './components/About';
 import AchievementsPage from './components/achievements/AchievementsPage';
 import RewardsPage from './components/rewards/RewardsPage';
-import StorePage from './pages/StorePage';
+import Store from './components/Store';
 
 function App() {
   return (
@@ -32,7 +32,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/auth" element={<AuthSystem />} />
           <Route path="/about" element={<About />} />
-          <Route path="/store" element={<StorePage />} />
+          <Route path="/store" element={<Store />} />
 
           {/* Protected Routes */}
           <Route 
