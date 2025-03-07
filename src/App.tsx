@@ -23,6 +23,9 @@ import AchievementsPage from './components/achievements/AchievementsPage';
 import RewardsPage from './components/rewards/RewardsPage';
 import StoreTheme from './store/StoreTheme';
 import GameStore from './store/GameStore';
+import Guild from './guild/Guild.tsx';
+import CreateGuild from './guild/CreateGuild.tsx'; // New import
+import JoinGuild from './guild/JoinGuild.tsx';     // New import
 
 function App() {
   return (
@@ -36,146 +39,35 @@ function App() {
             <Route path="/store" element={<GameStore />} />
 
             {/* Protected Routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <ProfileDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/compiler"
-              element={
-                <ProtectedRoute>
-                  <CompilerPage />
-                </ProtectedRoute>
-              }
-            />
-            {/* Achievements */}
-            <Route
-              path="/achievements"
-              element={
-                <ProtectedRoute>
-                  <AchievementsPage />
-                </ProtectedRoute>
-              }
-            />
-            {/* Rewards */}
-            <Route
-              path="/rewards"
-              element={
-                <ProtectedRoute>
-                  <RewardsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfileDashboard /></ProtectedRoute>} />
+            <Route path="/compiler" element={<ProtectedRoute><CompilerPage /></ProtectedRoute>} />
+            <Route path="/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
+            <Route path="/rewards" element={<ProtectedRoute><RewardsPage /></ProtectedRoute>} />
+            <Route path="/guild" element={<ProtectedRoute><Guild /></ProtectedRoute>} />
+            <Route path="/guild/create" element={<ProtectedRoute><CreateGuild /></ProtectedRoute>} />
+            <Route path="/guild/join" element={<ProtectedRoute><JoinGuild /></ProtectedRoute>} />
 
             {/* Courses */}
-            <Route
-              path="/courses"
-              element={
-                <ProtectedRoute>
-                  <ProgrammingCourses />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/python-fundamentals"
-              element={
-                <ProtectedRoute>
-                  <PythonFundamentals />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/c-programming"
-              element={
-                <ProtectedRoute>
-                  <CProgramming />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/java-programming"
-              element={
-                <ProtectedRoute>
-                  <JavaProgramming />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/courses" element={<ProtectedRoute><ProgrammingCourses /></ProtectedRoute>} />
+            <Route path="/courses/python-fundamentals" element={<ProtectedRoute><PythonFundamentals /></ProtectedRoute>} />
+            <Route path="/courses/c-programming" element={<ProtectedRoute><CProgramming /></ProtectedRoute>} />
+            <Route path="/courses/java-programming" element={<ProtectedRoute><JavaProgramming /></ProtectedRoute>} />
 
             {/* Challenges */}
-            <Route
-              path="/challenges"
-              element={
-                <ProtectedRoute>
-                  <ChallengeCategories />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/challenges/language-select"
-              element={
-                <ProtectedRoute>
-                  <LanguageSelection />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/challenges/level-select"
-              element={
-                <ProtectedRoute>
-                  <LevelSelection />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/challenges/daily"
-              element={
-                <ProtectedRoute>
-                  <DailyChallenge />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/challenges/java"
-              element={
-                <ProtectedRoute>
-                  <JavaChallenge />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/challenges" element={<ProtectedRoute><ChallengeCategories /></ProtectedRoute>} />
+            <Route path="/challenges/language-select" element={<ProtectedRoute><LanguageSelection /></ProtectedRoute>} />
+            <Route path="/challenges/level-select" element={<ProtectedRoute><LevelSelection /></ProtectedRoute>} />
+            <Route path="/challenges/daily" element={<ProtectedRoute><DailyChallenge /></ProtectedRoute>} />
+            <Route path="/challenges/java" element={<ProtectedRoute><JavaChallenge /></ProtectedRoute>} />
 
             {/* Interview Bot */}
-            <Route
-              path="/interview-bot"
-              element={
-                <ProtectedRoute>
-                  <InterviewBot />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/interview-bot" element={<ProtectedRoute><InterviewBot /></ProtectedRoute>} />
 
             {/* Aptitude Test */}
-            <Route
-              path="/aptitude-test"
-              element={
-                <ProtectedRoute>
-                  <AptitudeTest />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/aptitude-test" element={<ProtectedRoute><AptitudeTest /></ProtectedRoute>} />
 
-            {/* Default Route - Redirect to /auth */}
+            {/* Default Route */}
             <Route path="/" element={<Navigate to="/auth" replace />} />
           </Routes>
         </StoreTheme>
