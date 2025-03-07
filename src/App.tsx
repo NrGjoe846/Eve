@@ -22,7 +22,7 @@ import AptitudeTest from './components/aptitude/AptitudeTest';
 import About from './components/About';
 import AchievementsPage from './components/achievements/AchievementsPage';
 import RewardsPage from './components/rewards/RewardsPage';
-import Store from './components/Store';
+import StorePage from './pages/StorePage';
 
 function App() {
   return (
@@ -32,7 +32,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/auth" element={<AuthSystem />} />
           <Route path="/about" element={<About />} />
-          <Route path="/store" element={<Store />} />
+          <Route path="/store" element={<StorePage />} />
 
           {/* Protected Routes */}
           <Route 
