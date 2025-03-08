@@ -1,4 +1,3 @@
-// src/components/Dashboard.tsx
 import React from 'react';
 import { GraduationCap, Code, Atom, Trophy, Users, Activity, Terminal, Code2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -9,7 +8,8 @@ import NextLessonCard from './NextLessonCard';
 import DailyChallenge from './DailyChallenge';
 import AchievementBadge from './gamification/AchievementBadge';
 import FloatingCompiler from './FloatingCompiler';
-import CodeMastery from './courses/CodeMastery'; // Imported CodeMastery
+import CodeMastery from './courses/CodeMastery';
+import { difficultyLevels } from './miniproject/projectData'; // Corrected import path
 
 const Dashboard = () => {
   const recentAchievements = [
@@ -132,9 +132,28 @@ const Dashboard = () => {
                 </Link>
               </div>
             </section>
+
+            {/* Mini Project Preview */}
+            <section className="animate-slide-up-delayed-5">
+              <h2 className="text-2xl font-bold mb-6 text-gray-200">Mini Project Preview</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {difficultyLevels.slice(0, 2).map((level, index) => (
+                  <div key={index} className="bg-[#1a1a2e]/50 p-6 rounded-xl border border-white/10">
+                    <div className="flex items-center gap-2 mb-2">
+                      {level.icon}
+                      <h3 className="text-xl font-bold">{level.title}</h3>
+                    </div>
+                    <p className="text-gray-400 text-sm mb-4">{level.description}</p>
+                    <Link to="/miniproject" className="text-blue-400 hover:text-blue-300">
+                      Explore Projects →
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
-      </div>
+       </div>
 
       {/* Floating Compiler */}
       <FloatingCompiler />
@@ -172,6 +191,7 @@ const Dashboard = () => {
           .animate-slide-up-delayed-2 { animation: slideUp 0.8s ease-out 0.4s backwards; }
           .animate-slide-up-delayed-3 { animation: slideUp 0.8s ease-out 0.6s backwards; }
           .animate-slide-up-delayed-4 { animation: slideUp 0.8s ease-out 0.8s backwards; }
+          .animate-slide-up-delayed-5 { animation: slideUp 0.8s ease-out 1s backwards; }
           @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
