@@ -24,8 +24,9 @@ import RewardsPage from './components/rewards/RewardsPage';
 import StoreTheme from './store/StoreTheme';
 import GameStore from './store/GameStore';
 import Guild from './guild/Guild.tsx';
-import CreateGuild from './guild/CreateGuild.tsx'; // New import
-import JoinGuild from './guild/JoinGuild.tsx';     // New import
+import CreateGuild from './guild/CreateGuild.tsx';
+import JoinGuild from './guild/JoinGuild.tsx';
+import MiniProjectPage from './components/miniproject/MiniProjectPage'; // Updated path
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
             <Route path="/guild" element={<ProtectedRoute><Guild /></ProtectedRoute>} />
             <Route path="/guild/create" element={<ProtectedRoute><CreateGuild /></ProtectedRoute>} />
             <Route path="/guild/join" element={<ProtectedRoute><JoinGuild /></ProtectedRoute>} />
+            <Route path="/miniproject" element={<ProtectedRoute><MiniProjectPage /></ProtectedRoute>} />
 
             {/* Courses */}
             <Route path="/courses" element={<ProtectedRoute><ProgrammingCourses /></ProtectedRoute>} />
