@@ -26,7 +26,7 @@ class AptitudeService {
   constructor() {
     try {
       const genAI = new GoogleGenerativeAI(API_KEY);
-      this.model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+      this.model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     } catch (error) {
       console.warn('Failed to initialize Gemini client, falling back to mock data:', error);
       this.useMocks = true;
