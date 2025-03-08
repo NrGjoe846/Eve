@@ -1,260 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Code2, Play, ArrowRight, ArrowLeft, AlertCircle, RefreshCw, BookOpen, Zap, Trophy } from 'lucide-react';
+import { Code2, Play, ArrowRight, ArrowLeft, AlertCircle, RefreshCw } from 'lucide-react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import BackButton from '../BackButton';
+import { Project, difficultyLevels } from './projectData';
 
 const API_KEY = 'AIzaSyDFujDavmC63MeyvGc9vgchx_HL6vMdjm4';
-
-interface Project {
-  name: string;
-  description: string;
-  code: string;
-  language: string;
-  output?: string;
-}
-
-const beginnerProjects = [
-  {
-    name: "Calculator Program",
-    description: "A simple calculator that performs basic arithmetic operations",
-    code: `# Simple Calculator Program
-
-# Function to perform addition
-def add(x, y):
-    return x + y
-
-# Function to perform subtraction
-def subtract(x, y):
-    return x - y
-
-# Function to perform multiplication
-def multiply(x, y):
-    return x * y
-
-# Function to perform division
-def divide(x, y):
-    if y == 0:
-        return "Cannot divide by zero!"
-    return x / y
-
-# Main calculator loop
-while True:
-    print("Select operation:")
-    print("1. Add")
-    print("2. Subtract")
-    print("3. Multiply")
-    print("4. Divide")
-    print("5. Exit")
-    
-    choice = input("Enter choice (1-5): ")
-    
-    if choice == '5':
-        print("Goodbye!")
-        break
-        
-    if choice in ('1', '2', '3', '4'):
-        num1 = float(input("Enter first number: "))
-        num2 = float(input("Enter second number: "))
-        
-        if choice == '1':
-            print(f"{num1} + {num2} = {add(num1, num2)}")
-        elif choice == '2':
-            print(f"{num1} - {num2} = {subtract(num1, num2)}")
-        elif choice == '3':
-            print(f"{num1} * {num2} = {multiply(num1, num2)}")
-        elif choice == '4':
-            result = divide(num1, num2)
-            print(f"{num1} / {num2} = {result}")
-    else:
-        print("Invalid input")`,
-    language: "python"
-  },
-  {
-    name: "Number Guessing Game",
-    description: "Guess a number between 1 and 100 with helpful feedback",
-    code: `# Number Guessing Game
-import random
-
-# Generate a random number between 1 and 100
-number = random.randint(1, 100)
-attempts = 0
-max_attempts = 10
-
-print("Welcome to the Number Guessing Game!")
-print(f"I'm thinking of a number between 1 and 100.")
-print(f"You have {max_attempts} attempts to guess it.")
-
-while attempts < max_attempts:
-    try:
-        # Get the player's guess
-        guess = int(input("Enter your guess: "))
-        attempts += 1
-        
-        # Check if the guess is correct
-        if guess == number:
-            print(f"Congratulations! You guessed the number in {attempts} attempts!")
-            break
-        elif guess < number:
-            print("Too low! Try again.")
-        else:
-            print("Too high! Try again.")
-            
-        # Show remaining attempts
-        remaining = max_attempts - attempts
-        print(f"You have {remaining} attempts left.")
-        
-    except ValueError:
-        print("Please enter a valid number.")
-        
-if attempts == max_attempts and guess != number:
-    print(f"Game Over! The number was {number}.")`,
-    language: "python"
-  }
-];
-
-const intermediateProjects = [
-  {
-    name: "File Organizer",
-    description: "A program that organizes files in a directory based on their extensions",
-    code: `import os
-import shutil
-
-def organize_files(directory):
-    for filename in os.listdir(directory):
-        if os.path.isfile(os.path.join(directory, filename)):
-            file_extension = filename.split('.')[-1]
-            folder_path = os.path.join(directory, file_extension)
-            if not os.path.exists(folder_path):
-                os.makedirs(folder_path)
-            shutil.move(os.path.join(directory, filename), os.path.join(folder_path, filename))
-    print("Files organized successfully!")
-
-directory_path = "./test_files"  # Replace with your directory path
-organize_files(directory_path)`,
-    language: "python",
-    output: `Files organized into folders based on file type.
-Example structure:
-- test_files/
-  - pdf/
-    - resume.pdf
-  - jpg/
-    - photo.jpg
-  - txt/
-    - notes.txt
-Files organized successfully!`
-  },
-  {
-    name: "Expense Tracker",
-    description: "A simple expense tracker for managing and categorizing expenses",
-    code: `class ExpenseTracker:
-    def __init__(self):
-        self.expenses = []
-
-    def add_expense(self, category, amount):
-        self.expenses.append({"category": category, "amount": amount})
-        print(f"Added {category}: ${amount}")
-
-    def total_expenses(self):
-        return sum(expense['amount'] for expense in self.expenses)
-
-    def view_expenses(self):
-        print("\\n--- Expenses ---")
-        for expense in self.expenses:
-            print(f"{expense['category']}: ${expense['amount']}")
-        print("----------------")
-
-tracker = ExpenseTracker()
-tracker.add_expense("Food", 50)
-tracker.add_expense("Transport", 20)
-tracker.add_expense("Entertainment", 30)
-tracker.view_expenses()
-print(f"Total Expenses: ${tracker.total_expenses()}")`,
-    language: "python",
-    output: `Added Food: $50
-Added Transport: $20
-Added Entertainment: $30
-
---- Expenses ---
-Food: $50
-Transport: $20
-Entertainment: $30
-----------------
-Total Expenses: $100`
-  },
-  {
-    name: "Web Scraper",
-    description: "A program that scrapes quotes from a website and saves them to a file",
-    code: `import requests
-from bs4 import BeautifulSoup
-
-def scrape_quotes(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    quotes = []
-    for quote in soup.find_all('div', class_='quote'):
-        text = quote.find('span', class_='text').get_text()
-        author = quote.find('small', class_='author').get_text()
-        quotes.append(f'"{text}" - {author}')
-    with open('quotes.txt', 'w') as file:
-        for q in quotes:
-            file.write(q + '\\n')
-    print("Quotes saved to quotes.txt")
-
-scrape_quotes("http://quotes.toscrape.com")`,
-    language: "python",
-    output: `Quotes saved to quotes.txt
-Example file content:
-"The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking." - Albert Einstein
-"It is our choices, Harry, that show what we truly are, far more than our abilities." - J.K. Rowling`
-  },
-  {
-    name: "Password Generator",
-    description: "Generate strong random passwords with customizable criteria",
-    code: `import random
-import string
-
-def generate_password(length=12, use_symbols=True):
-    characters = string.ascii_letters + string.digits
-    if use_symbols:
-        characters += string.punctuation
-    password = ''.join(random.choice(characters) for _ in range(length))
-    return password
-
-password_length = int(input("Enter password length: "))
-include_symbols = input("Include symbols? (yes/no): ").lower() == 'yes'
-generated_password = generate_password(password_length, include_symbols)
-print(f"Generated Password: {generated_password}")`,
-    language: "python",
-    output: `If the user inputs:
-- Length: 12, Symbols: Yes → Password example: 7p$&mX@!yP2d
-- Length: 8, Symbols: No → Password example: xY4zP8qR`
-  }
-];
-
-const difficultyLevels = [
-  {
-    title: "Beginner",
-    description: "Perfect for those just starting their coding journey",
-    icon: <BookOpen className="w-6 h-6" />,
-    color: "from-green-500/20 to-emerald-500/20",
-    projects: beginnerProjects
-  },
-  {
-    title: "Intermediate",
-    description: "For coders with some experience under their belt",
-    icon: <Zap className="w-6 h-6" />,
-    color: "from-blue-500/20 to-indigo-500/20",
-    projects: intermediateProjects
-  },
-  {
-    title: "Advanced",
-    description: "Challenge yourself with complex projects",
-    icon: <Trophy className="w-6 h-6" />,
-    color: "from-purple-500/20 to-pink-500/20",
-    projects: []
-  }
-];
 
 interface CodeLine {
   code: string;
@@ -392,6 +143,11 @@ const MiniProjectPage = () => {
     setCodeLines([]);
     setError(null);
   };
+
+  // Calculate progress percentage
+  const progressPercentage = codeLines.length > 0 
+    ? Math.round((currentLineIndex / (codeLines.length - 1)) * 100)
+    : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] to-[#16213e] text-white p-8">
@@ -554,22 +310,18 @@ const MiniProjectPage = () => {
               <div className="backdrop-blur-xl bg-white/10 rounded-2xl border border-white/20 p-6">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-gray-400">Progress</span>
-                  <span className="text-sm text-gray-400">
-                    {Math.round((currentLineIndex / (codeLines.length - 1)) * 100)}%
-                  </span>
+                  <span className="text-sm text-gray-400">{progressPercentage}%</span>
                 </div>
                 <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-                    style={{
-                      width: `${(currentLineIndex / (codeLines.length - 1)) * 100}%`
-                    }}
+                    style={{ width: `${progressPercentage}%` }}
                   />
                 </div>
               </div>
 
               {/* Output Panel */}
-              {selectedProject.output && (
+              {selectedProject?.output && (
                 <div className="backdrop-blur-xl bg-white/10 rounded-2xl border border-white/20 p-6">
                   <h2 className="text-xl font-bold mb-4">Expected Output</h2>
                   <pre className="whitespace-pre-wrap text-sm text-gray-300">
