@@ -8,170 +8,170 @@
           { "subtopic": "Installing Python (Anaconda, PyCharm, or basic Python)", "questionsData": [] },
           { "subtopic": "Setting up the IDE", "questionsData": [] },
           { "subtopic": "Writing your first Python program: print(\"Hello, World!\")", "questionsData": [
-{
-"type": "multiple-selection",
-"question": "Which of these are valid Python keywords? (Select all that apply)",
-"options": [
-"print",
-"for",
-"if"
-],
-"answer": ["if", "for"],
-"component": "MultipleSelectionQuestion",
-"hints": [
-{ "id": 1, "text": "Keywords are reserved words in Python." },
-{ "id": 2, "text": "One of these is a function, not a keyword." },
-{ "id": 3, "text": "Think of words used in control flow like loops or conditionals." },
-{ "id": 4, "text": "Check which ones you can’t use as variable names." },
-{ "id": 5, "text": "Two of these control program structure." }
-]
-},
-{
-"type": "fill",
-"question": "Complete this code to print your name: __________('My name is Alex')",
-"answer": "print",
-"component": "FillInTheBlank",
-"hints": [
-{ "id": 1, "text": "This is a basic Python output function." },
-{ "id": 2, "text": "It’s used in the 'Hello, World!' example." },
-{ "id": 3, "text": "The word is 5 letters long." },
-{ "id": 4, "text": "It tells Python to display text." },
-{ "id": 5, "text": "Starts with 'p' and ends with 't'." }
-]
-},
-{
-"type": "multiple-choice",
-"question": "What is the output of this code: print('Hello, World!')?",
-"options": [
-"Error",
-"Hello World",
-"Hello, World!"
-],
-"answer": "Hello, World!",
-"component": "MultipleChoiceQuestion",
-"hints": [
-{ "id": 1, "text": "The output matches what’s inside the quotes." },
-{ "id": 2, "text": "Python’s print function displays text exactly as written." },
-{ "id": 3, "text": "Check for punctuation in the output." },
-{ "id": 4, "text": "There’s no syntax error in the code." },
-{ "id": 5, "text": "The comma and exclamation mark are included." }
-]
-},
-{
-"type": "true-false",
-"question": "Python requires a compiler to run its code.",
-"answer": "False",
-"component": "TrueFalseQuestion",
-"hints": [
-{ "id": 1, "text": "Python uses something else to execute code." },
-{ "id": 2, "text": "Compiled languages like C++ need this, but Python doesn’t." },
-{ "id": 3, "text": "Think about how Python runs your code line-by-line." },
-{ "id": 4, "text": "The answer relates to Python being an interpreted language." },
-{ "id": 5, "text": "Check if Python needs a separate build step." }
-]
-},
-{
-"type": "order",
-"question": "Arrange the steps to write and run your first Python program:",
-"options": [
-"Save the file with a .py extension.",
-"Run the program using the interpreter.",
-"Write print('Hello, World!') in a .py file."
-],
-"correctOrder": [
-"Write print('Hello, World!') in a .py file.",
-"Save the file with a .py extension.",
-"Run the program using the interpreter."
-],
-"component": "OrderQuestion",
-"hints": [
-{ "id": 1, "text": "You need to write code before saving it." },
-{ "id": 2, "text": "Saving comes before running." },
-{ "id": 3, "text": "The interpreter is the last step to see output." },
-{ "id": 4, "text": "Think of the sequence: write, save, execute." },
-{ "id": 5, "text": "The .py extension tells Python it’s a script." }
-]
-},
-{
-"type": "match",
-"question": "Match the term to its role in Python programming:",
-"options": [
-{ "term": "Interpreter", "match": "Executes Code" },
-{ "term": "IDE", "match": "Development Environment" }
-],
-"component": "MatchQuestion",
-"hints": [
-{ "id": 1, "text": "One term helps you write code, the other runs it." },
-{ "id": 2, "text": "IDE stands for Integrated Development Environment." },
-{ "id": 3, "text": "The interpreter is what makes Python run line-by-line." },
-{ "id": 4, "text": "Think of tools like PyCharm for one of these." },
-{ "id": 5, "text": "Execution is about running the program." }
-]
-},
-{
-"type": "code-correction",
-"question": "What’s wrong with this statement?\n\nPython needs to be compiled before it can run.",
-"options": [
-"The statement is correct.",
-"Python uses an interpreter instead.",
-"Python is compiled into bytecode first."
-],
-"answer": "Python uses an interpreter instead.",
-"component": "CodeCorrectionQuestion",
-"hints": [
-{ "id": 1, "text": "Python doesn’t require a traditional compilation step." },
-{ "id": 2, "text": "Think about how Python executes code directly." },
-{ "id": 3, "text": "One option describes Python’s actual process." },
-{ "id": 4, "text": "Compiled languages like Java differ from Python here." },
-{ "id": 5, "text": "The correct answer involves an 'interpreter'." }
-]
-},
-{
-"type": "unscramble",
-"question": "Unscramble these words to form a correct statement about Python’s first program:",
-"options": ["your", "print", "is", "World", "Hello"],
-"answer": ["print", "Hello", "World"],
-"component": "DragDropQuestion",
-"hints": [
-{ "id": 1, "text": "The statement is a basic Python command." },
-{ "id": 2, "text": "It involves displaying text on the screen." },
-{ "id": 3, "text": "The first word is a Python function." },
-{ "id": 4, "text": "The last two words form a common greeting." },
-{ "id": 5, "text": "You’ll need parentheses in the final code." }
-]
-},
-{
-"type": "multiple-choice",
-"question": "Which IDE is commonly used for Python development?",
-"options": [
-"Notepad",
-"PyCharm",
-"Microsoft Word"
-],
-"answer": "PyCharm",
-"component": "MultipleChoiceQuestion",
-"hints": [
-{ "id": 1, "text": "It’s a specialized tool for coding." },
-{ "id": 2, "text": "This option is designed for Python developers." },
-{ "id": 3, "text": "It’s not a general text editor or word processor." },
-{ "id": 4, "text": "Think of a tool with debugging and autocomplete features." },
-{ "id": 5, "text": "The name includes 'Py' like Python." }
-]
-},
-{
-"type": "fill",
-"question": "Python uses an __________ to execute code line-by-line rather than compiling it first.",
-"answer": "interpreter",
-"component": "FillInTheBlank",
-"hints": [
-{ "id": 1, "text": "This term refers to a program that runs code directly." },
-{ "id": 2, "text": "It’s the opposite of a compiler." },
-{ "id": 3, "text": "Python doesn’t need a separate step to turn code into machine language." },
-{ "id": 4, "text": "Think of how Python executes your print statements immediately." },
-{ "id": 5, "text": "The word starts with 'i' and ends with 'r'." }
-]
-}
-] },
+  {
+    "type": "fill",
+    "question": "To show 'Hello, World!' you write ______('Hello, World!').",
+    "answer": "print",
+    "component": "FillInTheBlank",
+    "hints": [
+      { "id": 1, "text": "This is the word that tells Python to show something on the screen." },
+      { "id": 2, "text": "It’s the very first thing you learn to do in Python—like saying hi!" },
+      { "id": 3, "text": "The word is small, only 5 letters, and easy to type." },
+      { "id": 4, "text": "When you use it, whatever is in the () shows up—like 'Hello, World!'." },
+      { "id": 5, "text": "It starts with 'p' and ends with 't'—think of 'printing' a message." }
+    ]
+  },
+  {
+    "type": "true-false",
+    "question": "You must save your file with .py to run print('Hello, World!').",
+    "answer": "True",
+    "component": "TrueFalseQuestion",
+    "hints": [
+      { "id": 1, "text": "Python needs to know your file is a Python program, so you add .py." },
+      { "id": 2, "text": "If you don’t save it with .py, Python won’t understand it’s your code." },
+      { "id": 3, "text": "For example, 'mycode.py' works, but 'mycode.txt' won’t." },
+      { "id": 4, "text": "The .py ending is like a tag that says, 'Hey, I’m a Python file!'" },
+      { "id": 5, "text": "When you save with .py, you can run it and see 'Hello, World!'." }
+    ]
+  },
+  {
+    "type": "multiple-choice",
+    "question": "What happens when you run print('Hello, World!')?",
+    "options": [
+      "Nothing happens",
+      "Hello, World! shows up",
+      "An error pops up"
+    ],
+    "answer": "Hello, World! shows up",
+    "component": "MultipleChoiceQuestion",
+    "hints": [
+      { "id": 1, "text": "The word 'print' tells Python to show what’s inside the parentheses." },
+      { "id": 2, "text": "Whatever you put in the quotes, like 'Hello, World!', comes out on the screen." },
+      { "id": 3, "text": "There’s no mistake in print('Hello, World!'), so it won’t break." },
+      { "id": 4, "text": "Try it yourself—run it and see 'Hello, World!' appear!" },
+      { "id": 5, "text": "It’s the first fun thing you do in Python—it says hi to the world!" }
+    ]
+  },
+  {
+    "type": "order",
+    "question": "Put these steps in order to make your first program:",
+    "options": [
+      "Save it with .py at the end.",
+      "Run it with Python.",
+      "Write print('Hello, World!') in a file."
+    ],
+    "correctOrder": [
+      "Write print('Hello, World!') in a file.",
+      "Save it with .py at the end.",
+      "Run it with Python."
+    ],
+    "component": "OrderQuestion",
+    "hints": [
+      { "id": 1, "text": "First, you need to write the code—like print('Hello, World!')—in a file." },
+      { "id": 2, "text": "Next, you save it so Python can find it; .py is the special ending." },
+      { "id": 3, "text": "Last, you tell Python to run it, and you’ll see 'Hello, World!'." },
+      { "id": 4, "text": "Think of it like: write your note, put it in an envelope, then send it!" },
+      { "id": 5, "text": "If you mix up the order, Python won’t know what to do with your code." }
+    ]
+  },
+  {
+    "type": "fill",
+    "question": "Your file needs this ending to work: ______",
+    "answer": ".py",
+    "component": "FillInTheBlank",
+    "hints": [
+      { "id": 1, "text": "This ending tells Python, 'I’m a program you can run!'" },
+      { "id": 2, "text": "It’s just 3 letters and starts with a dot, like '.py'." },
+      { "id": 3, "text": "Without this, your print('Hello, World!') won’t work." },
+      { "id": 4, "text": "You add it when you save, like naming a file 'hello.py'." },
+      { "id": 5, "text": "The 'p' stands for Python—it’s a clue!" }
+    ]
+  },
+  {
+    "type": "multiple-selection",
+    "question": "What’s in print('Hello, World!')? (Pick all that fit)",
+    "options": [
+      "Hello",
+      "print",
+      "World!"
+    ],
+    "answer": ["print", "Hello", "World!"],
+    "component": "MultipleSelectionQuestion",
+    "hints": [
+      { "id": 1, "text": "'print' is the command that tells Python to show something." },
+      { "id": 2, "text": "'Hello' and 'World!' are the words you want to see on the screen." },
+      { "id": 3, "text": "All these parts work together to make 'Hello, World!' appear." },
+      { "id": 4, "text": "The quotes around 'Hello, World!' hold the message, but 'print' starts it." },
+      { "id": 5, "text": "Try writing it—it’s print and then the words in quotes!" }
+    ]
+  },
+  {
+    "type": "match",
+    "question": "Match each part to its job:",
+    "options": [
+      { "term": "'Hello, World!'", "match": "The message you see" },
+      { "term": "print", "match": "Tells Python to show it" }
+    ],
+    "component": "MatchQuestion",
+    "hints": [
+      { "id": 1, "text": "'print' is like a button you press to show something." },
+      { "id": 2, "text": "'Hello, World!' is what comes out when you press that button." },
+      { "id": 3, "text": "The first part is the action, the second part is the words." },
+      { "id": 4, "text": "Together, they make your first program say hi!" },
+      { "id": 5, "text": "Think: one tells Python what to do, one is what it shows." }
+    ]
+  },
+  {
+    "type": "code-correction",
+    "question": "What’s wrong?\n\nType hello world to show it.",
+    "options": [
+      "You need print('Hello, World!') with quotes.",
+      "That works fine.",
+      "Type print(hello world) instead."
+    ],
+    "answer": "You need print('Hello, World!') with quotes.",
+    "component": "CodeCorrectionQuestion",
+    "hints": [
+      { "id": 1, "text": "Just typing words won’t work—Python needs a command." },
+      { "id": 2, "text": "'print' is the command, and quotes hold the message." },
+      { "id": 3, "text": "Without quotes, Python gets confused about 'hello world'." },
+      { "id": 4, "text": "The right way is print('Hello, World!')—try it!" },
+      { "id": 5, "text": "One option shows the fix with 'print' and quotes." }
+    ]
+  },
+  {
+    "type": "multiple-choice",
+    "question": "Where do you put print('Hello, World!')?",
+    "options": [
+      "In a file",
+      "On a piece of paper",
+      "In a book"
+    ],
+    "answer": "In a file",
+    "component": "MultipleChoiceQuestion",
+    "hints": [
+      { "id": 1, "text": "Python needs your code in a place it can read, like a file." },
+      { "id": 2, "text": "You save it with .py so Python knows where to look." },
+      { "id": 3, "text": "Paper or a book won’t work—Python can’t read those!" },
+      { "id": 4, "text": "Think of a computer file, like 'hello.py', for your code." },
+      { "id": 5, "text": "It’s where you type print('Hello, World!') to start." }
+    ]
+  },
+  {
+    "type": "unscramble",
+    "question": "Unscramble these to make your first program:",
+    "options": ["World", "say", "print", "Hello", "to"],
+    "answer": ["print", "Hello", "World"],
+    "component": "DragDropQuestion",
+    "hints": [
+      { "id": 1, "text": "The first word is the command that shows your message." },
+      { "id": 2, "text": "The next two words are what you want to say: 'Hello, World!'." },
+      { "id": 3, "text": "It starts with 'print'—that’s what makes it work." },
+      { "id": 4, "text": "In the real code, you’d add quotes around 'Hello World'." },
+      { "id": 5, "text": "Try it: print('Hello, World!') says hi when you run it!" }
+    ]
+  }
+]},
           { "subtopic": "Python syntax, keywords, and comments", "questionsData": [] },
           { "subtopic": "Python's interpreter vs. compiled languages", "questionsData": [] }
         ]
