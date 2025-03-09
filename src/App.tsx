@@ -26,7 +26,7 @@ import GameStore from './store/GameStore';
 import Guild from './guild/Guild.tsx';
 import CreateGuild from './guild/CreateGuild.tsx';
 import JoinGuild from './guild/JoinGuild.tsx';
-import MiniProjectPage from './components/miniproject/MiniProjectPage'; // Updated path
+import MiniProjectPage from './components/miniproject/MiniProjectPage';
 
 function App() {
   return (
