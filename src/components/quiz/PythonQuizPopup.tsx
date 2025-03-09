@@ -1,6 +1,7 @@
+// src/components/quiz/PythonQuizPopup.tsx
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Swords, Map as MapIcon } from 'lucide-react'; // Renamed Map to MapIcon to avoid collision
+import { X, Swords, Map as MapIcon, HelpCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import Confetti from 'react-confetti';
@@ -54,6 +55,8 @@ const PythonQuizPopup: React.FC<PythonQuizPopupProps> = ({
   const [showConfetti, setShowConfetti] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, any>>({});
+  const [showHint, setShowHint] = useState(false);
+  const [currentHintIndex, setCurrentHintIndex] = useState(0); // Hint cycling state
   const { width, height } = useWindowSize();
 
   const findQuestionsForModule = () => {
@@ -79,6 +82,7 @@ const PythonQuizPopup: React.FC<PythonQuizPopupProps> = ({
   const questions = findQuestionsForModule();
   const currentQuestion = questions[currentQuestionIndex] || {};
   const QuestionComponent = componentMap[currentQuestion.component] || null;
+  const hints = currentQuestion.hints || []; // Array of 5 hints from JSON
 
   useEffect(() => {
     if (!isOpen) {
@@ -87,12 +91,17 @@ const PythonQuizPopup: React.FC<PythonQuizPopupProps> = ({
       setShowConfetti(false);
       setCurrentQuestionIndex(0);
       setAnswers({});
+      setShowHint(false);
+      setCurrentHintIndex(0); // Reset hint index when quiz closes
+    } else {
+      setCurrentHintIndex(0); // Reset hint index when moving to a new question
     }
-  }, [isOpen]);
+  }, [isOpen, currentQuestionIndex]);
 
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
+      setShowHint(false); // Hide hint when moving to next question
     } else {
       handleQuizComplete();
     }
@@ -124,8 +133,20 @@ const PythonQuizPopup: React.FC<PythonQuizPopupProps> = ({
     setAnswers((prev) => ({ ...prev, [currentQuestionIndex]: answer }));
   };
 
+  const toggleHint = () => {
+    setShowHint((prev) => !prev);
+  };
+
+  const handleNextHint = () => {
+    setCurrentHintIndex((prev) => (prev + 1) % hints.length); // Cycle forward
+  };
+
+  const handlePrevHint = () => {
+    setCurrentHintIndex((prev) => (prev - 1 + hints.length) % hints.length); // Cycle backward
+  };
+
   const storyChapter = storyChapters?.find(ch => ch.phaseId === phaseId);
-  const storyText = storyChapter?.topics?.[topicId]?.subtopics?.[moduleTitle.split('-')[1]];
+  const storyText = storyChapter?.topics?.[topicId]?.subtopics?.[moduleTitle.split('-')[1]] || "Solve this trial to restore the realm’s glory!";
 
   if (!isOpen) return null;
 
@@ -175,9 +196,40 @@ const PythonQuizPopup: React.FC<PythonQuizPopupProps> = ({
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-2 p-3 bg-[#d3c092]/50 rounded-lg border border-[#8b5e3c] shadow-inner"
+                  className="mt-2 p-3 bg-[#d3c092]/50 rounded-lg border border-[#8b5e3c] shadow-inner flex justify-between items-center"
                 >
-                  <p className="text-sm text-[#6b4e31] italic">{storyText || "Solve this trial to restore the realm’s glory!"}</p>
+                  {showHint && hints.length > 0 ? (
+                    <div className="flex items-center justify-between w-full">
+                      <button
+                        onClick={handlePrevHint}
+                        className="p-1 hover:bg-[#8b5e3c]/20 rounded-full text-[#8b5e3c] transition-all"
+                        disabled={hints.length <= 1}
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <p className="text-sm text-[#6b4e31] italic flex-1 text-center">
+                        {hints[currentHintIndex].text}
+                      </p>
+                      <button
+                        onClick={handleNextHint}
+                        className="p-1 hover:bg-[#8b5e3c]/20 rounded-full text-[#8b5e3c] transition-all"
+                        disabled={hints.length <= 1}
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-[#6b4e31] italic flex-1">
+                      {storyText}
+                    </p>
+                  )}
+                  <button
+                    onClick={toggleHint}
+                    className="p-1 hover:bg-[#8b5e3c]/20 rounded-full text-[#8b5e3c] transition-all"
+                    title="Seek Wisdom"
+                  >
+                    <HelpCircle className="w-5 h-5" />
+                  </button>
                 </motion.div>
               </div>
 
