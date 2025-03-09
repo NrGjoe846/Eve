@@ -486,219 +486,684 @@ Correct! Score: 3
 Quiz Complete!
 Final Score: 100.0%
 Play Again?`
-  }
-];
-
-export const intermediateProjects: Project[] = [];
-
-export const advancedProjects: Project[] = [
+  },
   {
-    name: "AI-Powered Resume Analyzer",
-    description: "An intelligent system that analyzes resumes using NLP and ML to match candidates with job descriptions",
-    code: `import spacy
-import fitz  # PyMuPDF
-from flask import Flask, request, jsonify
-from pdfminer.high_level import extract_text
-from docx import Document
-from sqlalchemy import create_engine, Column, Integer, String, Float, Text
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-import re
-import json
+    name: "Number Guessing Game",
+    description: "A simple game where the player tries to guess a random number",
+    code: `import random
 
-# Initialize Flask app and database
-app = Flask(__name__)
-Base = declarative_base()
-engine = create_engine('sqlite:///resumes.db')
-Session = sessionmaker(bind=engine)
-
-class Resume(Base):
-    __tablename__ = 'resumes'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100))
-    email = Column(String(100))
-    phone = Column(String(20))
-    skills = Column(Text)
-    experience = Column(Float)
-    education = Column(Text)
-    match_score = Column(Float)
-
-Base.metadata.create_all(engine)
-
-# Load SpaCy model
-nlp = spacy.load('en_core_web_sm')
-
-class ResumeAnalyzer:
-    def __init__(self):
-        self.skill_patterns = [
-            'python', 'java', 'javascript', 'react', 'node.js', 'sql',
-            'machine learning', 'data analysis', 'project management'
-        ]
+def play_game():
+    # Generate a random number between 1 and 100
+    secret_number = random.randint(1, 100)
+    attempts = 0
+    max_attempts = 10
     
-    def extract_text_from_pdf(self, pdf_file):
-        """Extract text from PDF file"""
+    print("Welcome to the Number Guessing Game!")
+    print(f"I'm thinking of a number between 1 and 100.")
+    print(f"You have {max_attempts} attempts to guess it.")
+    
+    while attempts < max_attempts:
         try:
-            doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
-            text = ""
-            for page in doc:
-                text += page.get_text()
-            return text
-        except Exception as e:
-            raise Exception(f"Error extracting text from PDF: {str(e)}")
+            # Get player's guess
+            guess = int(input("\\nEnter your guess: "))
+            attempts += 1
+            
+            # Check the guess
+            if guess < 1 or guess > 100:
+                print("Please enter a number between 1 and 100.")
+                attempts -= 1  # Don't count invalid guesses
+            elif guess < secret_number:
+                print("Too low!")
+                print(f"Attempts remaining: {max_attempts - attempts}")
+            elif guess > secret_number:
+                print("Too high!")
+                print(f"Attempts remaining: {max_attempts - attempts}")
+            else:
+                print(f"\\nCongratulations! You guessed the number in {attempts} attempts!")
+                return True
+                
+        except ValueError:
+            print("Please enter a valid number.")
+            attempts -= 1  # Don't count invalid inputs
     
-    def extract_text_from_docx(self, docx_file):
-        """Extract text from DOCX file"""
-        try:
-            doc = Document(docx_file)
-            return " ".join([paragraph.text for paragraph in doc.paragraphs])
-        except Exception as e:
-            raise Exception(f"Error extracting text from DOCX: {str(e)}")
-    
-    def extract_contact_info(self, text):
-        """Extract contact information using regex"""
-        email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-        phone_pattern = r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b'
-        name_pattern = r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})'
+    print(f"\\nGame Over! The number was {secret_number}.")
+    return False
+
+def main():
+    while True:
+        play_game()
         
-        email = re.findall(email_pattern, text)
-        phone = re.findall(phone_pattern, text)
-        name = re.findall(name_pattern, text)
+        # Ask to play again
+        while True:
+            play_again = input("\\nWould you like to play again? (yes/no): ").lower()
+            if play_again in ['yes', 'no']:
+                break
+            print("Please enter 'yes' or 'no'.")
+        
+        if play_again == 'no':
+            print("Thanks for playing! Goodbye!")
+            break
+
+if __name__ == "__main__":
+    main()`,
+    language: "python",
+    output: `Welcome to the Number Guessing Game!
+I'm thinking of a number between 1 and 100.
+You have 10 attempts to guess it.
+
+Enter your guess: 50
+Too high!
+Attempts remaining: 9
+
+Enter your guess: 25
+Too low!
+Attempts remaining: 8
+
+Enter your guess: 37
+Too low!
+Attempts remaining: 7
+
+Enter your guess: 42
+Congratulations! You guessed the number in 4 attempts!
+
+Would you like to play again? (yes/no): no
+Thanks for playing! Goodbye!`
+  },
+  {
+    name: "AI-Powered Chatbot",
+    description: "A chatbot that understands and responds to user queries using Natural Language Processing (NLP)",
+    code: `import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+import json
+import random
+import openai
+from flask import Flask, request, jsonify
+
+class ChatBot:
+    def __init__(self):
+        # Download required NLTK data
+        nltk.download('punkt')
+        nltk.download('stopwords')
+        nltk.download('wordnet')
+        
+        # Initialize NLTK tools
+        self.lemmatizer = WordNetLemmatizer()
+        self.stop_words = set(stopwords.words('english'))
+        
+        # Load training data
+        self.intents = json.loads(open('intents.json').read())
+        
+        # Initialize OpenAI (for advanced queries)
+        openai.api_key = 'YOUR_API_KEY'
+        
+        # Initialize conversation context
+        self.context = []
+    
+    def preprocess_text(self, text):
+        # Tokenize and lemmatize input
+        tokens = word_tokenize(text.lower())
+        tokens = [self.lemmatizer.lemmatize(token) 
+                 for token in tokens 
+                 if token not in self.stop_words]
+        return tokens
+    
+    def get_intent(self, tokens):
+        # Match input tokens with intents
+        for intent in self.intents['intents']:
+            for pattern in intent['patterns']:
+                pattern_tokens = self.preprocess_text(pattern)
+                if all(token in pattern_tokens for token in tokens):
+                    return intent
+        return None
+    
+    def get_openai_response(self, query):
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": query}
+                ]
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"Error getting AI response: {str(e)}"
+    
+    def get_response(self, text):
+        # Preprocess input text
+        tokens = self.preprocess_text(text)
+        
+        # Get matching intent
+        intent = self.get_intent(tokens)
+        
+        if intent:
+            # Use predefined responses for known intents
+            response = random.choice(intent['responses'])
+            
+            # Update context
+            self.context.append({
+                'intent': intent['tag'],
+                'input': text,
+                'response': response
+            })
+            
+            return response
+        else:
+            # Use OpenAI for unknown queries
+            response = self.get_openai_response(text)
+            
+            # Update context
+            self.context.append({
+                'intent': 'unknown',
+                'input': text,
+                'response': response
+            })
+            
+            return response
+
+# Flask web application
+app = Flask(__name__)
+chatbot = ChatBot()
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.get_json()
+    if 'message' not in data:
+        return jsonify({'error': 'No message provided'}), 400
+    
+    response = chatbot.get_response(data['message'])
+    return jsonify({'response': response})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+# Example intents.json structure:
+"""
+{
+    "intents": [
+        {
+            "tag": "greeting",
+            "patterns": ["hi", "hello", "hey"],
+            "responses": ["Hello!", "Hi there!", "Hey!"]
+        },
+        {
+            "tag": "weather",
+            "patterns": ["what's the weather", "weather forecast"],
+            "responses": ["Let me check the weather for you..."]
+        }
+    ]
+}
+"""`,
+    language: "python",
+    output: `=== AI Chatbot Demo ===
+
+User: Hello there!
+Bot: Hi there! How can I help you today?
+
+User: What's the weather like?
+Bot: Let me check the weather for you...
+[Fetching weather data...]
+Current weather in London: 18°C, Partly Cloudy
+
+User: Tell me a joke
+Bot: Here's one: Why don't programmers like nature? It has too many bugs!
+
+User: What is machine learning?
+Bot: Machine Learning is a subset of artificial intelligence that enables systems to learn and improve from experience without being explicitly programmed. It focuses on developing computer programs that can access data and use it to learn for themselves.`
+  },
+  {
+    name: "Stock Market Prediction System",
+    description: "A machine learning model that predicts stock prices based on historical data",
+    code: `import numpy as np
+import pandas as pd
+import yfinance as yf
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense, Dropout
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+class StockPredictor:
+    def __init__(self):
+        self.model = None
+        self.scaler = MinMaxScaler()
+        self.prediction_days = 60  # Number of days to use for prediction
+        
+    def fetch_data(self, symbol, start_date, end_date):
+        """Fetch stock data from Yahoo Finance"""
+        try:
+            df = yf.download(symbol, start=start_date, end=end_date)
+            return df
+        except Exception as e:
+            print(f"Error fetching data: {str(e)}")
+            return None
+    
+    def prepare_data(self, data):
+        """Prepare data for LSTM model"""
+        # Scale the data
+        scaled_data = self.scaler.fit_transform(data['Close'].values.reshape(-1, 1))
+        
+        x_train = []
+        y_train = []
+        
+        for x in range(self.prediction_days, len(scaled_data)):
+            x_train.append(scaled_data[x-self.prediction_days:x, 0])
+            y_train.append(scaled_data[x, 0])
+            
+        x_train, y_train = np.array(x_train), np.array(y_train)
+        x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
+        
+        return x_train, y_train
+    
+    def build_model(self, input_shape):
+        """Build LSTM model"""
+        model = Sequential()
+        
+        model.add(LSTM(units=50, return_sequences=True, 
+                      input_shape=input_shape))
+        model.add(Dropout(0.2))
+        
+        model.add(LSTM(units=50, return_sequences=True))
+        model.add(Dropout(0.2))
+        
+        model.add(LSTM(units=50))
+        model.add(Dropout(0.2))
+        
+        model.add(Dense(units=1))
+        
+        model.compile(optimizer='adam', loss='mean_squared_error')
+        
+        return model
+    
+    def train_model(self, x_train, y_train, epochs=25, batch_size=32):
+        """Train the LSTM model"""
+        self.model = self.build_model((x_train.shape[1], 1))
+        
+        history = self.model.fit(
+            x_train, 
+            y_train, 
+            epochs=epochs, 
+            batch_size=batch_size, 
+            verbose=1
+        )
+        
+        return history
+    
+    def predict_future(self, data, days=30):
+        """Predict future stock prices"""
+        # Prepare input data
+        scaled_data = self.scaler.transform(data['Close'].values.reshape(-1, 1))
+        
+        x_test = []
+        x_test.append(scaled_data[-self.prediction_days:, 0])
+        x_test = np.array(x_test)
+        x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
+        
+        # Make predictions
+        predictions = []
+        current_batch = x_test
+        
+        for _ in range(days):
+            current_pred = self.model.predict(current_batch)[0]
+            predictions.append(current_pred)
+            
+            # Update batch for next prediction
+            current_batch = np.append(current_batch[:, 1:, :], 
+                                    [[current_pred]], axis=1)
+        
+        # Inverse transform predictions
+        predictions = self.scaler.inverse_transform(np.array(predictions).reshape(-1, 1))
+        
+        return predictions
+    
+    def calculate_metrics(self, actual, predicted):
+        """Calculate performance metrics"""
+        mse = np.mean((actual - predicted) ** 2)
+        rmse = np.sqrt(mse)
+        mae = np.mean(np.abs(actual - predicted))
         
         return {
-            'name': name[0] if name else None,
-            'email': email[0] if email else None,
-            'phone': phone[0] if phone else None
+            'MSE': mse,
+            'RMSE': rmse,
+            'MAE': mae
         }
     
+    def plot_results(self, data, predictions, symbol):
+        """Plot actual vs predicted prices"""
+        plt.figure(figsize=(16,8))
+        plt.plot(data.index, data['Close'], label='Actual Prices')
+        
+        # Plot predictions
+        future_dates = pd.date_range(
+            start=data.index[-1], 
+            periods=len(predictions)+1, 
+            closed='right'
+        )
+        plt.plot(future_dates, predictions, label='Predicted Prices')
+        
+        plt.title(f'{symbol} Stock Price Prediction')
+        plt.xlabel('Time')
+        plt.ylabel('Price')
+        plt.legend()
+        
+        # Add confidence intervals
+        plt.fill_between(
+            future_dates,
+            predictions.flatten() - predictions.std(),
+            predictions.flatten() + predictions.std(),
+            alpha=0.2
+        )
+        
+        plt.show()
+    
+    def generate_report(self, data, predictions, metrics, symbol):
+        """Generate analysis report"""
+        report = f"""
+        Stock Analysis Report for {symbol}
+        ================================
+        
+        Training Data Summary:
+        - Start Date: {data.index[0].strftime('%Y-%m-%d')}
+        - End Date: {data.index[-1].strftime('%Y-%m-%d')}
+        - Total Days: {len(data)}
+        
+        Performance Metrics:
+        - Mean Squared Error: ${metrics['MSE'].toFixed(2)}
+        - Root Mean Squared Error: ${metrics['RMSE'].toFixed(2)}
+        - Mean Absolute Error: ${metrics['MAE'].toFixed(2)}
+        
+        Predictions Summary:
+        - Number of Future Days: {len(predictions)}
+        - Predicted Price Range: $${predictions.min().toFixed(2)} - $${predictions.max().toFixed(2)}
+        - Average Predicted Price: $${predictions.mean().toFixed(2)}
+        
+        Confidence Level: 95%
+        Standard Deviation: ${predictions.std().toFixed(2)}
+        """
+        
+        return report
+
+# Example usage
+if __name__ == "__main__":
+    predictor = StockPredictor()
+    
+    # Fetch historical data
+    symbol = "AAPL"
+    data = predictor.fetch_data(symbol, "2020-01-01", "2024-01-01")
+    
+    # Prepare and train model
+    x_train, y_train = predictor.prepare_data(data)
+    history = predictor.train_model(x_train, y_train)
+    
+    # Make predictions
+    predictions = predictor.predict_future(data, days=30)
+    
+    # Calculate metrics
+    actual = data['Close'].values[-30:]
+    metrics = predictor.calculate_metrics(actual, predictions[:30])
+    
+    # Plot results and generate report
+    predictor.plot_results(data, predictions, symbol)
+    report = predictor.generate_report(data, predictions, metrics, symbol)
+    console.log(report)`,
+    language: "python",
+    output: `=== Stock Market Prediction System ===
+
+Loading data for AAPL...
+Training LSTM model...
+Epoch 1/25
+progress: [====================] 100%
+Loss: 0.0023
+
+Generating predictions...
+Analysis complete!
+
+Stock Analysis Report for AAPL
+================================
+Training Data Summary:
+- Start Date: 2020-01-01
+- End Date: 2024-01-01
+- Total Days: 1008
+
+Performance Metrics:
+- Mean Squared Error: ${2.34.toFixed(2)}
+- Root Mean Squared Error: ${1.53.toFixed(2)}
+- Mean Absolute Error: ${1.12.toFixed(2)}
+
+Predictions Summary:
+- Number of Future Days: 30
+- Predicted Price Range: $${180.25.toFixed(2)} - $${195.75.toFixed(2)}
+- Average Predicted Price: $${188.45.toFixed(2)}
+
+[Displaying price prediction plot with confidence intervals]`
+  },
+  {
+    name: "Automated Resume Screener",
+    description: "A tool that scans resumes and ranks them based on job requirements",
+    code: `import spacy
+import docx2txt
+import PyPDF2
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import pandas as pd
+from flask import Flask, request, jsonify
+
+class ResumeScreener:
+    def __init__(self):
+        # Load SpaCy model
+        self.nlp = spacy.load('en_core_web_lg')
+        
+        # Initialize vectorizer
+        self.vectorizer = TfidfVectorizer(stop_words='english')
+        
+        # Common skills database
+        self.skills_db = self.load_skills_database()
+        
+    def load_skills_database(self):
+        """Load predefined skills database"""
+        # This would typically load from a JSON/CSV file
+        return {
+            'programming': ['python', 'java', 'javascript', 'c++', 'ruby'],
+            'web': ['html', 'css', 'react', 'angular', 'node.js'],
+            'database': ['sql', 'mongodb', 'postgresql', 'mysql'],
+            'tools': ['git', 'docker', 'kubernetes', 'jenkins'],
+            'soft_skills': ['leadership', 'communication', 'teamwork']
+        }
+    
+    def extract_text_from_pdf(self, pdf_path):
+        """Extract text from PDF file"""
+        text = ""
+        try:
+            with open(pdf_path, 'rb') as file:
+                pdf_reader = PyPDF2.PdfReader(file)
+                for page in pdf_reader.pages:
+                    text += page.extract_text()
+        except Exception as e:
+            print(f"Error extracting PDF text: {str(e)}")
+        return text
+    
+    def extract_text_from_docx(self, docx_path):
+        """Extract text from DOCX file"""
+        try:
+            text = docx2txt.process(docx_path)
+            return text
+        except Exception as e:
+            print(f"Error extracting DOCX text: {str(e)}")
+            return ""
+    
+    def extract_text(self, file_path):
+        """Extract text based on file type"""
+        if file_path.endswith('.pdf'):
+            return self.extract_text_from_pdf(file_path)
+        elif file_path.endswith('.docx'):
+            return self.extract_text_from_docx(file_path)
+        else:
+            return ""
+    
     def extract_skills(self, text):
-        """Extract skills using SpaCy and pattern matching"""
-        doc = nlp(text.lower())
+        """Extract skills from text"""
         skills = []
+        doc = self.nlp(text.lower())
         
-        # Extract skills using pattern matching
-        for skill in self.skill_patterns:
-            if skill in doc.text:
-                skills.append(skill)
+        # Extract skills using pattern matching and NER
+        for category, skill_list in self.skills_db.items():
+            for skill in skill_list:
+                if skill in text.lower():
+                    skills.append(skill)
         
-        # Extract skills using entity recognition
+        # Extract additional skills using NER
         for ent in doc.ents:
-            if ent.label_ in ['ORG', 'PRODUCT'] and len(ent.text) > 2:
-                skills.append(ent.text.lower())
+            if ent.label_ in ['ORG', 'PRODUCT']:
+                skills.append(ent.text)
         
         return list(set(skills))
     
-    def extract_experience(self, text):
-        """Extract years of experience"""
-        experience_patterns = [
-            r'(\d+)\+?\s*years?\s*of\s*experience',
-            r'experience\s*of\s*(\d+)\+?\s*years?'
-        ]
+    def extract_education(self, text):
+        """Extract education information"""
+        education = []
+        education_keywords = ['bachelor', 'master', 'phd', 'degree']
         
-        for pattern in experience_patterns:
-            match = re.search(pattern, text.lower())
-            if match:
-                return float(match.group(1))
-        return 0
+        doc = self.nlp(text)
+        for sent in doc.sents:
+            if any(keyword in sent.text.lower() for keyword in education_keywords):
+                education.append(sent.text.strip())
+        
+        return education
     
-    def calculate_match_score(self, resume_text, job_description):
-        """Calculate match score between resume and job description"""
-        vectorizer = TfidfVectorizer()
-        vectors = vectorizer.fit_transform([resume_text, job_description])
-        similarity = cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
-        return similarity * 100
+    def extract_experience(self, text):
+        """Extract work experience"""
+        experience = []
+        doc = self.nlp(text)
+        
+        # Look for date patterns and job titles
+        for sent in doc.sents:
+            if re.search(r'\\d{4}', sent.text):  # Contains year
+                experience.append(sent.text.strip())
+        
+        return experience
     
-    def analyze_resume(self, file, job_description):
-        """Analyze resume and return structured data"""
-        try:
-            # Extract text based on file type
-            if file.filename.endswith('.pdf'):
-                text = self.extract_text_from_pdf(file)
-            elif file.filename.endswith('.docx'):
-                text = self.extract_text_from_docx(file)
-            else:
-                raise ValueError("Unsupported file format")
+    def calculate_similarity(self, job_description, resume_text):
+        """Calculate similarity between job description and resume"""
+        texts = [job_description, resume_text]
+        tfidf_matrix = self.vectorizer.fit_transform(texts)
+        similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+        return similarity
+    
+    def rank_resumes(self, job_description, resume_files):
+        """Rank resumes based on job description"""
+        rankings = []
+        
+        for resume_file in resume_files:
+            resume_text = self.extract_text(resume_file)
             
             # Extract information
-            contact_info = self.extract_contact_info(text)
-            skills = self.extract_skills(text)
-            experience = self.extract_experience(text)
-            match_score = self.calculate_match_score(text, job_description)
+            skills = self.extract_skills(resume_text)
+            education = self.extract_education(resume_text)
+            experience = self.extract_experience(resume_text)
             
-            # Save to database
-            session = Session()
-            resume = Resume(
-                name=contact_info['name'],
-                email=contact_info['email'],
-                phone=contact_info['phone'],
-                skills=json.dumps(skills),
-                experience=experience,
-                match_score=match_score
-            )
-            session.add(resume)
-            session.commit()
+            # Calculate similarity
+            similarity = self.calculate_similarity(job_description, resume_text)
             
-            return {
-                'contact_info': contact_info,
+            # Calculate score (weighted average)
+            required_skills = self.extract_skills(job_description)
+            skill_match = len(set(skills) & set(required_skills)) / len(required_skills)
+            
+            score = (similarity * 0.4 + skill_match * 0.6) * 100
+            
+            rankings.append({
+                'file': resume_file,
+                'score': score,
                 'skills': skills,
+                'education': education,
                 'experience': experience,
-                'match_score': match_score,
-                'id': resume.id
-            }
-            
-        except Exception as e:
-            raise Exception(f"Error analyzing resume: {str(e)}")
+                'similarity': similarity
+            })
+        
+        # Sort by score
+        rankings.sort(key=lambda x: x['score'], reverse=True)
+        return rankings
+    
+    def generate_report(self, rankings, job_description):
+        """Generate detailed screening report"""
+        report = {
+            'job_analysis': {
+                'required_skills': self.extract_skills(job_description),
+                'total_candidates': len(rankings),
+                'average_score': sum(r['score'] for r in rankings) / len(rankings)
+            },
+            'candidate_rankings': rankings,
+            'recommendations': []
+        }
+        
+        # Add recommendations
+        for rank in rankings[:3]:  # Top 3 candidates
+            report['recommendations'].append({
+                'file': rank['file'],
+                'score': rank['score'],
+                'strengths': [
+                    skill for skill in rank['skills'] 
+                    if skill in report['job_analysis']['required_skills']
+                ],
+                'missing_skills': [
+                    skill for skill in report['job_analysis']['required_skills'] 
+                    if skill not in rank['skills']
+                ]
+            })
+        
+        return report
 
-@app.route('/analyze', methods=['POST'])
-def analyze():
+# Flask web application
+app = Flask(__name__)
+screener = ResumeScreener()
+
+@app.route('/screen', methods=['POST'])
+def screen_resumes():
     try:
-        if 'resume' not in request.files:
-            return jsonify({'error': 'No resume file provided'}), 400
-            
-        file = request.files['resume']
-        job_description = request.form.get('job_description', '')
+        data = request.get_json()
+        job_description = data['job_description']
+        resume_files = data['resume_files']
         
-        analyzer = ResumeAnalyzer()
-        result = analyzer.analyze_resume(file, job_description)
+        rankings = screener.rank_resumes(job_description, resume_files)
+        report = screener.generate_report(rankings, job_description)
         
-        return jsonify(result)
-        
+        return jsonify(report)
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)`,
     language: "python",
-    output: `=== Resume Analysis Results ===
+    output: `=== Resume Screening Results ===
 
-Contact Information:
-Name: John Smith
-Email: john.smith@email.com
-Phone: 123-456-7890
+Job Analysis:
+Required Skills: ['python', 'machine learning', 'sql', 'data analysis']
+Total Candidates: 3
+Average Score: 75.5
 
-Skills Extracted:
-- Python
-- Machine Learning
-- Data Analysis
-- SQL
-- Project Management
-- leadership
+Top Candidates:
+1. candidate1.pdf (Score: 92.5)
+   Strengths: python, machine learning, sql
+   Missing Skills: data analysis
+   Education: Master's in Computer Science
+   Experience: 3 years ML Engineer
 
-Experience: 5 years
+2. candidate2.pdf (Score: 85.0)
+   Strengths: python, data analysis, sql
+   Missing Skills: machine learning
+   Education: Bachelor's in Data Science
+   Experience: 2 years Data Analyst
 
-Job Match Analysis:
-- Overall Match Score: 85.7%
-- Skills Match: 90%
-- Content Similarity: 76%
+3. candidate3.pdf (Score: 49.0)
+   Strengths: python, sql
+   Missing Skills: machine learning, data analysis
+   Education: Bachelor's in Computer Engineering
+   Experience: 1 year Software Developer
 
-Recommendation: Strong match
-The candidate's profile strongly aligns with the job requirements, 
-particularly in technical skills and experience level.
-
-Database Entry Created: ID #1242
-Report generated successfully.`
+[Generated detailed PDF report with visualizations]`
   }
 ];
 
