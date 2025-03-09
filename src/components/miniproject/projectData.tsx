@@ -190,113 +190,147 @@ Thank you for using the To-Do List application!`
   },
   {
     name: "Password Generator",
-    description: "A program that generates strong, random passwords based on user preferences",
-    code: `import random
+    description: "A customizable password generator that creates strong, random passwords based on user preferences",
+    code: String.raw`import random
 import string
-import tkinter as tk
-from tkinter import ttk
-import pyperclip
+import pyperclip  # Install using 'pip install pyperclip'
 
-class PasswordGenerator:
-    def __init__(self):
-        self.window = tk.Tk()
-        self.window.title("Password Generator")
-        self.window.geometry("400x500")
-        self.setup_gui()
-        
-    def setup_gui(self):
-        # Length Frame
-        length_frame = ttk.LabelFrame(self.window, text="Password Length")
-        length_frame.pack(padx=20, pady=10, fill="x")
-        
-        self.length_var = tk.IntVar(value=12)
-        length_scale = ttk.Scale(
-            length_frame, 
-            from_=8, 
-            to=32, 
-            variable=self.length_var,
-            orient="horizontal"
-        )
-        length_scale.pack(padx=10, pady=5, fill="x")
-        
-        # Character Types Frame
-        chars_frame = ttk.LabelFrame(self.window, text="Character Types")
-        chars_frame.pack(padx=20, pady=10, fill="x")
-        
-        self.uppercase_var = tk.BooleanVar(value=True)
-        self.lowercase_var = tk.BooleanVar(value=True)
-        self.numbers_var = tk.BooleanVar(value=True)
-        self.special_var = tk.BooleanVar(value=True)
-        
-        ttk.Checkbutton(chars_frame, text="Uppercase (A-Z)", 
-                       variable=self.uppercase_var).pack(padx=10, pady=5, anchor="w")
-        ttk.Checkbutton(chars_frame, text="Lowercase (a-z)", 
-                       variable=self.lowercase_var).pack(padx=10, pady=5, anchor="w")
-        ttk.Checkbutton(chars_frame, text="Numbers (0-9)", 
-                       variable=self.numbers_var).pack(padx=10, pady=5, anchor="w")
-        ttk.Checkbutton(chars_frame, text="Special Characters (!@#$%^&*)", 
-                       variable=self.special_var).pack(padx=10, pady=5, anchor="w")
-        
-        # Generate Button
-        ttk.Button(self.window, text="Generate Password", 
-                  command=self.generate_password).pack(pady=20)
-        
-        # Password Display
-        self.password_var = tk.StringVar()
-        password_entry = ttk.Entry(
-            self.window, 
-            textvariable=self.password_var, 
-            font=('Courier', 12),
-            justify="center"
-        )
-        password_entry.pack(padx=20, pady=10, fill="x")
-        
-        # Copy Button
-        ttk.Button(self.window, text="Copy to Clipboard", 
-                  command=self.copy_to_clipboard).pack(pady=10)
-        
-    def generate_password(self):
-        chars = ""
-        if self.uppercase_var.get():
-            chars += string.ascii_uppercase
-        if self.lowercase_var.get():
-            chars += string.ascii_lowercase
-        if self.numbers_var.get():
-            chars += string.digits
-        if self.special_var.get():
-            chars += string.punctuation
-            
-        if not chars:
-            self.password_var.set("Please select at least one character type")
-            return
-            
-        password = ''.join(random.choice(chars) for _ in range(self.length_var.get()))
-        self.password_var.set(password)
-        
-    def copy_to_clipboard(self):
-        password = self.password_var.get()
-        if password and not password.startswith("Please select"):
-            pyperclip.copy(password)
+def generate_password(length=12, use_digits=True, use_special=True, use_upper=True):
+    # Define character sets
+    lower = string.ascii_lowercase
+    upper = string.ascii_uppercase if use_upper else ""
+    digits = string.digits if use_digits else ""
+    special = string.punctuation if use_special else ""
     
-    def run(self):
-        self.window.mainloop()
+    all_chars = lower + upper + digits + special
+    
+    if not all_chars:
+        return "Error: No character set selected!"
+    
+    # Generate password
+    password = "".join(random.choice(all_chars) for _ in range(length))
+    
+    # Ensure at least one character from each selected set
+    if use_upper:
+        password = random.choice(string.ascii_uppercase) + password[1:]
+    if use_digits:
+        password = password[:-1] + random.choice(string.digits)
+    if use_special:
+        mid = len(password) // 2
+        password = password[:mid] + random.choice(string.punctuation) + password[mid+1:]
+    
+    # Shuffle the final password
+    password_list = list(password)
+    random.shuffle(password_list)
+    return "".join(password_list)
+
+def validate_password_strength(password):
+    """Check password strength and return feedback"""
+    strength = 0
+    feedback = []
+    
+    if any(c.isupper() for c in password):
+        strength += 1
+    else:
+        feedback.append("Add uppercase letters")
+    
+    if any(c.islower() for c in password):
+        strength += 1
+    else:
+        feedback.append("Add lowercase letters")
+    
+    if any(c.isdigit() for c in password):
+        strength += 1
+    else:
+        feedback.append("Add numbers")
+    
+    if any(c in string.punctuation for c in password):
+        strength += 1
+    else:
+        feedback.append("Add special characters")
+    
+    if len(password) >= 12:
+        strength += 1
+    else:
+        feedback.append("Make it longer")
+    
+    return {
+        "strength": strength,
+        "feedback": feedback,
+        "rating": ["Very Weak", "Weak", "Medium", "Strong", "Very Strong"][strength]
+    }
+
+def main():
+    print("🔐 Password Generator 🔐")
+    print("------------------------")
+    
+    while True:
+        try:
+            length = int(input("\nEnter password length (minimum 8): "))
+            if length < 8:
+                print("Password length must be at least 8 characters!")
+                continue
+                
+            use_digits = input("Include numbers? (y/n): ").lower() == "y"
+            use_special = input("Include special characters? (y/n): ").lower() == "y"
+            use_upper = input("Include uppercase letters? (y/n): ").lower() == "y"
+            
+            num_passwords = int(input("How many passwords to generate? "))
+            
+            print("\nGenerated Passwords:")
+            print("--------------------")
+            
+            for i in range(num_passwords):
+                password = generate_password(length, use_digits, use_special, use_upper)
+                strength = validate_password_strength(password)
+                
+                print(f"\nPassword {i+1}: {password}")
+                print(f"Strength: {strength['rating']}")
+                if strength['feedback']:
+                    print("Suggestions:", ", ".join(strength['feedback']))
+                
+                if i == 0:  # Copy first password to clipboard
+                    pyperclip.copy(password)
+                    print("✅ First password copied to clipboard!")
+            
+            again = input("\nGenerate more passwords? (y/n): ").lower()
+            if again != 'y':
+                print("\nThank you for using Password Generator!")
+                break
+                
+        except ValueError:
+            print("Please enter valid numbers!")
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
 
 if __name__ == "__main__":
-    app = PasswordGenerator()
-    app.run()`,
+    main()`,
     language: "python",
-    output: `=== Password Generator ===
+    output: `🔐 Password Generator 🔐
+------------------------
 
-[GUI Window Launched]
-Password Length: 16
-Character Types Selected:
-- Uppercase (A-Z)
-- Lowercase (a-z)
-- Numbers (0-9)
-- Special Characters
+Enter password length (minimum 8): 16
+Include numbers? (y/n): y
+Include special characters? (y/n): y
+Include uppercase letters? (y/n): y
+How many passwords to generate? 3
 
-Generated Password: Kj9#mP2$nL5@vX4
-Password copied to clipboard!`
+Generated Passwords:
+--------------------
+
+Password 1: Kj9#mP2$nL5@vX4h
+Strength: Very Strong
+✅ First password copied to clipboard!
+
+Password 2: 7$pQn#K4mR9@jL2v
+Strength: Very Strong
+
+Password 3: X2#kL7$vM4@nP9hJ
+Strength: Very Strong
+
+Generate more passwords? (y/n): n
+
+Thank you for using Password Generator!`
   },
   {
     name: "Quiz Game",
@@ -568,7 +602,340 @@ Congratulations! You guessed the number in 4 attempts!
 
 Would you like to play again? (yes/no): no
 Thanks for playing! Goodbye!`
+  }
+];
+
+export const intermediateProjects: Project[] = [
+  {
+    name: "Expense Tracker",
+    description: "A GUI-based expense tracking application with database storage and data visualization",
+    code: String.raw`import tkinter as tk
+from tkinter import ttk, messagebox
+import sqlite3
+from datetime import datetime
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+class ExpenseTracker:
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.title("Expense Tracker")
+        self.window.geometry("800x600")
+        
+        # Initialize database
+        self.init_database()
+        
+        # Setup GUI components
+        self.setup_gui()
+        
+    def init_database(self):
+        """Initialize SQLite database"""
+        self.conn = sqlite3.connect('expenses.db')
+        self.cursor = self.conn.cursor()
+        
+        # Create expenses table if it doesn't exist
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS expenses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT NOT NULL,
+                category TEXT NOT NULL,
+                amount REAL NOT NULL,
+                description TEXT
+            )
+        ''')
+        self.conn.commit()
+    
+    def setup_gui(self):
+        """Setup the GUI components"""
+        # Input Frame
+        input_frame = ttk.LabelFrame(self.window, text="Add Expense")
+        input_frame.pack(padx=20, pady=10, fill="x")
+        
+        # Date
+        ttk.Label(input_frame, text="Date:").grid(row=0, column=0, padx=5, pady=5)
+        self.date_entry = ttk.Entry(input_frame)
+        self.date_entry.insert(0, datetime.now().strftime("%Y-%m-%d"))
+        self.date_entry.grid(row=0, column=1, padx=5, pady=5)
+        
+        # Category
+        ttk.Label(input_frame, text="Category:").grid(row=0, column=2, padx=5, pady=5)
+        self.categories = ["Food", "Transport", "Bills", "Shopping", "Entertainment", "Other"]
+        self.category_var = tk.StringVar()
+        category_combo = ttk.Combobox(input_frame, textvariable=self.category_var, values=self.categories)
+        category_combo.grid(row=0, column=3, padx=5, pady=5)
+        
+        # Amount
+        ttk.Label(input_frame, text="Amount:").grid(row=1, column=0, padx=5, pady=5)
+        self.amount_entry = ttk.Entry(input_frame)
+        self.amount_entry.grid(row=1, column=1, padx=5, pady=5)
+        
+        # Description
+        ttk.Label(input_frame, text="Description:").grid(row=1, column=2, padx=5, pady=5)
+        self.desc_entry = ttk.Entry(input_frame)
+        self.desc_entry.grid(row=1, column=3, padx=5, pady=5)
+        
+        # Add Button
+        ttk.Button(input_frame, text="Add Expense", command=self.add_expense).grid(
+            row=2, column=0, columnspan=4, pady=10)
+        
+        # Expenses Table
+        table_frame = ttk.LabelFrame(self.window, text="Expenses")
+        table_frame.pack(padx=20, pady=10, fill="both", expand=True)
+        
+        # Create Treeview
+        self.tree = ttk.Treeview(table_frame, columns=("Date", "Category", "Amount", "Description"),
+                                show="headings")
+        
+        # Set column headings
+        self.tree.heading("Date", text="Date")
+        self.tree.heading("Category", text="Category")
+        self.tree.heading("Amount", text="Amount")
+        self.tree.heading("Description", text="Description")
+        
+        # Add scrollbar
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
+        
+        self.tree.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Bind delete key
+        self.tree.bind("<Delete>", self.delete_expense)
+        
+        # Summary Frame
+        summary_frame = ttk.LabelFrame(self.window, text="Summary")
+        summary_frame.pack(padx=20, pady=10, fill="x")
+        
+        self.total_label = ttk.Label(summary_frame, text="Total Expenses: $0.00")
+        self.total_label.pack(pady=5)
+        
+        # Load existing expenses
+        self.load_expenses()
+        
+    def add_expense(self):
+        """Add new expense to database"""
+        try:
+            date = self.date_entry.get()
+            category = self.category_var.get()
+            amount = float(self.amount_entry.get())
+            description = self.desc_entry.get()
+            
+            # Insert into database
+            self.cursor.execute('''
+                INSERT INTO expenses (date, category, amount, description)
+                VALUES (?, ?, ?, ?)
+            ''', (date, category, amount, description))
+            self.conn.commit()
+            
+            # Clear entries
+            self.amount_entry.delete(0, tk.END)
+            self.desc_entry.delete(0, tk.END)
+            
+            # Reload expenses
+            self.load_expenses()
+            
+            messagebox.showinfo("Success", "Expense added successfully!")
+            
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid amount!")
+    
+    def load_expenses(self):
+        """Load expenses from database"""
+        # Clear existing items
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        
+        # Load from database
+        self.cursor.execute("SELECT date, category, amount, description FROM expenses")
+        expenses = self.cursor.fetchall()
+        
+        # Insert into treeview
+        total = 0
+        for expense in expenses:
+            self.tree.insert("", tk.END, values=expense)
+            total += expense[2]
+        
+        # Update total
+        self.total_label.config(text="Total Expenses: $%.2f" % total)
+        
+        # Update chart
+        self.update_chart()
+    
+    def delete_expense(self, event=None):
+        """Delete selected expense"""
+        selected_item = self.tree.selection()
+        if not selected_item:
+            return
+        
+        if messagebox.askyesno("Confirm", "Delete selected expense?"):
+            # Get the values of the selected item
+            values = self.tree.item(selected_item)['values']
+            
+            # Delete from database
+            self.cursor.execute('''
+                DELETE FROM expenses 
+                WHERE date=? AND category=? AND amount=? AND description=?
+            ''', values)
+            self.conn.commit()
+            
+            # Reload expenses
+            self.load_expenses()
+    
+    def update_chart(self):
+        """Update the expense chart"""
+        # Get expenses by category
+        self.cursor.execute('''
+            SELECT category, SUM(amount) 
+            FROM expenses 
+            GROUP BY category
+        ''')
+        data = self.cursor.fetchall()
+        
+        if data:
+            categories = [row[0] for row in data]
+            amounts = [row[1] for row in data]
+            
+            # Create pie chart
+            plt.figure(figsize=(6,4))
+            plt.pie(amounts, labels=categories, autopct='%1.1f%%')
+            plt.title("Expenses by Category")
+            
+            # Show plot
+            plt.show()
+    
+    def run(self):
+        """Run the application"""
+        self.window.mainloop()
+
+if __name__ == "__main__":
+    app = ExpenseTracker()
+    app.run()`,
+    language: "python",
+    output: `=== Expense Tracker ===
+
+[GUI Window Launched]
+
+Added Expense:
+Date: 2024-03-14
+Category: Food
+Amount: $25.50
+Description: Lunch with colleagues
+
+Added Expense:
+Date: 2024-03-14
+Category: Transport
+Amount: $15.00
+Description: Taxi fare
+
+Current Summary:
+Total Expenses: $40.50
+
+Expenses by Category:
+- Food: 63%
+- Transport: 37%
+
+[Displaying pie chart visualization]`
   },
+  {
+    name: "Command-line To-Do List",
+    description: "A persistent to-do list application with file storage that allows users to manage tasks through the command line",
+    code: String.raw`import os
+
+TASKS_FILE = "tasks.txt"
+
+def load_tasks():
+    if not os.path.exists(TASKS_FILE):
+        return []
+    with open(TASKS_FILE, "r") as file:
+        return file.read().splitlines()
+
+def save_tasks(tasks):
+    with open(TASKS_FILE, "w") as file:
+        file.write("\n".join(tasks))
+
+def display_tasks(tasks):
+    if not tasks:
+        print("No tasks available.")
+    else:
+        print("\nYour To-Do List:")
+        for i, task in enumerate(tasks, start=1):
+            print(f"{i}. {task}")
+
+def main():
+    tasks = load_tasks()
+    while True:
+        print("\nOptions: [1] Add [2] Remove [3] View [4] Exit")
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            task = input("Enter task: ")
+            tasks.append(task)
+            save_tasks(tasks)
+            print("Task added!")
+        elif choice == "2":
+            display_tasks(tasks)
+            try:
+                index = int(input("Enter task number to remove: ")) - 1
+                if 0 <= index < len(tasks):
+                    removed_task = tasks.pop(index)
+                    save_tasks(tasks)
+                    print(f"Removed: {removed_task}")
+                else:
+                    print("Invalid number!")
+            except ValueError:
+                print("Enter a valid number.")
+        elif choice == "3":
+            display_tasks(tasks)
+        elif choice == "4":
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice!")
+
+if __name__ == "__main__":
+    main()`,
+    language: "python",
+    output: `=== Command-line To-Do List ===
+
+Options: [1] Add [2] Remove [3] View [4] Exit
+Enter your choice: 1
+Enter task: Complete Python project
+Task added!
+
+Options: [1] Add [2] Remove [3] View [4] Exit
+Enter your choice: 1
+Enter task: Review code changes
+Task added!
+
+Options: [1] Add [2] Remove [3] View [4] Exit
+Enter your choice: 3
+
+Your To-Do List:
+1. Complete Python project
+2. Review code changes
+
+Options: [1] Add [2] Remove [3] View [4] Exit
+Enter your choice: 2
+Your To-Do List:
+1. Complete Python project
+2. Review code changes
+Enter task number to remove: 1
+Removed: Complete Python project
+
+Options: [1] Add [2] Remove [3] View [4] Exit
+Enter your choice: 3
+
+Your To-Do List:
+1. Review code changes
+
+Options: [1] Add [2] Remove [3] View [4] Exit
+Enter your choice: 4
+Exiting...`
+  }
+];
+
+export const advancedProjects: Project[] = [
   {
     name: "AI-Powered Chatbot",
     description: "A chatbot that understands and responds to user queries using Natural Language Processing (NLP)",
@@ -712,232 +1079,6 @@ Bot: Here's one: Why don't programmers like nature? It has too many bugs!
 
 User: What is machine learning?
 Bot: Machine Learning is a subset of artificial intelligence that enables systems to learn and improve from experience without being explicitly programmed. It focuses on developing computer programs that can access data and use it to learn for themselves.`
-  },
-  {
-    name: "Stock Market Prediction System",
-    description: "A machine learning model that predicts stock prices based on historical data",
-    code: `import numpy as np
-import pandas as pd
-import yfinance as yf
-from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-class StockPredictor:
-    def __init__(self):
-        self.model = None
-        self.scaler = MinMaxScaler()
-        self.prediction_days = 60  # Number of days to use for prediction
-        
-    def fetch_data(self, symbol, start_date, end_date):
-        """Fetch stock data from Yahoo Finance"""
-        try:
-            df = yf.download(symbol, start=start_date, end=end_date)
-            return df
-        except Exception as e:
-            print(f"Error fetching data: {str(e)}")
-            return None
-    
-    def prepare_data(self, data):
-        """Prepare data for LSTM model"""
-        # Scale the data
-        scaled_data = self.scaler.fit_transform(data['Close'].values.reshape(-1, 1))
-        
-        x_train = []
-        y_train = []
-        
-        for x in range(self.prediction_days, len(scaled_data)):
-            x_train.append(scaled_data[x-self.prediction_days:x, 0])
-            y_train.append(scaled_data[x, 0])
-            
-        x_train, y_train = np.array(x_train), np.array(y_train)
-        x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
-        
-        return x_train, y_train
-    
-    def build_model(self, input_shape):
-        """Build LSTM model"""
-        model = Sequential()
-        
-        model.add(LSTM(units=50, return_sequences=True, 
-                      input_shape=input_shape))
-        model.add(Dropout(0.2))
-        
-        model.add(LSTM(units=50, return_sequences=True))
-        model.add(Dropout(0.2))
-        
-        model.add(LSTM(units=50))
-        model.add(Dropout(0.2))
-        
-        model.add(Dense(units=1))
-        
-        model.compile(optimizer='adam', loss='mean_squared_error')
-        
-        return model
-    
-    def train_model(self, x_train, y_train, epochs=25, batch_size=32):
-        """Train the LSTM model"""
-        self.model = self.build_model((x_train.shape[1], 1))
-        
-        history = self.model.fit(
-            x_train, 
-            y_train, 
-            epochs=epochs, 
-            batch_size=batch_size, 
-            verbose=1
-        )
-        
-        return history
-    
-    def predict_future(self, data, days=30):
-        """Predict future stock prices"""
-        # Prepare input data
-        scaled_data = self.scaler.transform(data['Close'].values.reshape(-1, 1))
-        
-        x_test = []
-        x_test.append(scaled_data[-self.prediction_days:, 0])
-        x_test = np.array(x_test)
-        x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
-        
-        # Make predictions
-        predictions = []
-        current_batch = x_test
-        
-        for _ in range(days):
-            current_pred = self.model.predict(current_batch)[0]
-            predictions.append(current_pred)
-            
-            # Update batch for next prediction
-            current_batch = np.append(current_batch[:, 1:, :], 
-                                    [[current_pred]], axis=1)
-        
-        # Inverse transform predictions
-        predictions = self.scaler.inverse_transform(np.array(predictions).reshape(-1, 1))
-        
-        return predictions
-    
-    def calculate_metrics(self, actual, predicted):
-        """Calculate performance metrics"""
-        mse = np.mean((actual - predicted) ** 2)
-        rmse = np.sqrt(mse)
-        mae = np.mean(np.abs(actual - predicted))
-        
-        return {
-            'MSE': mse,
-            'RMSE': rmse,
-            'MAE': mae
-        }
-    
-    def plot_results(self, data, predictions, symbol):
-        """Plot actual vs predicted prices"""
-        plt.figure(figsize=(16,8))
-        plt.plot(data.index, data['Close'], label='Actual Prices')
-        
-        # Plot predictions
-        future_dates = pd.date_range(
-            start=data.index[-1], 
-            periods=len(predictions)+1, 
-            closed='right'
-        )
-        plt.plot(future_dates, predictions, label='Predicted Prices')
-        
-        plt.title(f'{symbol} Stock Price Prediction')
-        plt.xlabel('Time')
-        plt.ylabel('Price')
-        plt.legend()
-        
-        # Add confidence intervals
-        plt.fill_between(
-            future_dates,
-            predictions.flatten() - predictions.std(),
-            predictions.flatten() + predictions.std(),
-            alpha=0.2
-        )
-        
-        plt.show()
-    
-    def generate_report(self, data, predictions, metrics, symbol):
-        """Generate analysis report"""
-        report = f"""
-        Stock Analysis Report for {symbol}
-        ================================
-        
-        Training Data Summary:
-        - Start Date: {data.index[0].strftime('%Y-%m-%d')}
-        - End Date: {data.index[-1].strftime('%Y-%m-%d')}
-        - Total Days: {len(data)}
-        
-        Performance Metrics:
-        - Mean Squared Error: ${metrics['MSE'].toFixed(2)}
-        - Root Mean Squared Error: ${metrics['RMSE'].toFixed(2)}
-        - Mean Absolute Error: ${metrics['MAE'].toFixed(2)}
-        
-        Predictions Summary:
-        - Number of Future Days: {len(predictions)}
-        - Predicted Price Range: $${predictions.min().toFixed(2)} - $${predictions.max().toFixed(2)}
-        - Average Predicted Price: $${predictions.mean().toFixed(2)}
-        
-        Confidence Level: 95%
-        Standard Deviation: ${predictions.std().toFixed(2)}
-        """
-        
-        return report
-
-# Example usage
-if __name__ == "__main__":
-    predictor = StockPredictor()
-    
-    # Fetch historical data
-    symbol = "AAPL"
-    data = predictor.fetch_data(symbol, "2020-01-01", "2024-01-01")
-    
-    # Prepare and train model
-    x_train, y_train = predictor.prepare_data(data)
-    history = predictor.train_model(x_train, y_train)
-    
-    # Make predictions
-    predictions = predictor.predict_future(data, days=30)
-    
-    # Calculate metrics
-    actual = data['Close'].values[-30:]
-    metrics = predictor.calculate_metrics(actual, predictions[:30])
-    
-    # Plot results and generate report
-    predictor.plot_results(data, predictions, symbol)
-    report = predictor.generate_report(data, predictions, metrics, symbol)
-    console.log(report)`,
-    language: "python",
-    output: `=== Stock Market Prediction System ===
-
-Loading data for AAPL...
-Training LSTM model...
-Epoch 1/25
-progress: [====================] 100%
-Loss: 0.0023
-
-Generating predictions...
-Analysis complete!
-
-Stock Analysis Report for AAPL
-================================
-Training Data Summary:
-- Start Date: 2020-01-01
-- End Date: 2024-01-01
-- Total Days: 1008
-
-Performance Metrics:
-- Mean Squared Error: ${2.34.toFixed(2)}
-- Root Mean Squared Error: ${1.53.toFixed(2)}
-- Mean Absolute Error: ${1.12.toFixed(2)}
-
-Predictions Summary:
-- Number of Future Days: 30
-- Predicted Price Range: $${180.25.toFixed(2)} - $${195.75.toFixed(2)}
-- Average Predicted Price: $${188.45.toFixed(2)}
-
-[Displaying price prediction plot with confidence intervals]`
   },
   {
     name: "Automated Resume Screener",
@@ -1165,6 +1306,7 @@ Top Candidates:
 
 [Generated detailed PDF report with visualizations]`
   }
+  // Add other advanced projects here...
 ];
 
 export const difficultyLevels = [
