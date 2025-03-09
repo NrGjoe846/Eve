@@ -1,3 +1,4 @@
+// src/components/courses/PythonFundamentals.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Compass, Scroll, CheckCircle, Lock, ChevronDown, ChevronUp, 
@@ -21,7 +22,8 @@ const storyChapters = [
         intro: "The Variable Vaults spill their treasures. Master storage to seal them shut!",
         subtopics: {
           "installing-python": "Forge strong variable names to lock the vault doors.",
-          "ide-setup": "Assign the right data types to appease the vault guardians."
+          "ide-setup": "Assign the right data types to appease the vault guardians.",
+          "Introduction to Python Programming": "The realm needs your wisdom to master Python’s basics!" // Matches JSON subtopic
         }
       }
     },
@@ -51,7 +53,7 @@ interface Phase {
   icon: string;
 }
 
-const PythonFundamentals = () => {
+const PythonFundamentals: React.FC = () => {
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [flippedPhase, setFlippedPhase] = useState<string | null>(null);
   const [sparklePhase, setSparklePhase] = useState<string | null>(null);
@@ -200,7 +202,6 @@ const PythonFundamentals = () => {
       return;
     }
 
-    // Check if subtopic is already completed
     const isCompleted = userProgress.completedSubtopics[selectedTopic.topicId]?.includes(subtopic.id);
     if (isCompleted) {
       console.log('Subtopic already completed. Moving to next unlocked subtopic or topic.');
@@ -220,9 +221,16 @@ const PythonFundamentals = () => {
       setShowFlashcards(false);
       setShowQuiz(false);
     } else {
-      setShowFlashcards(true); // Show flashcards first
-      setShowQuiz(false);      // Quiz will be triggered from flashcards
-      setShowVideo(false);
+      // For "Introduction to Python Programming" or other subtopics, go straight to quiz
+      if (subtopicTitle === "Introduction to Python Programming") {
+        setShowQuiz(true);
+        setShowFlashcards(false);
+        setShowVideo(false);
+      } else {
+        setShowFlashcards(true);
+        setShowQuiz(false);
+        setShowVideo(false);
+      }
     }
   };
 
@@ -241,7 +249,7 @@ const PythonFundamentals = () => {
           [selectedTopic.topicId]: [
             ...(userProgress.completedSubtopics[selectedTopic.topicId] || []),
             subtopic.id
-          ].filter((id, index, self) => self.indexOf(id) === index) // Ensure no duplicates
+          ].filter((id, index, self) => self.indexOf(id) === index)
         };
 
         const baseXP = 50;
@@ -309,7 +317,7 @@ const PythonFundamentals = () => {
             [selectedTopic.topicId]: [
               ...(prev.completedSubtopics[selectedTopic.topicId] || []),
               subtopic.id
-            ].filter((id, index, self) => self.indexOf(id) === index) // Ensure no duplicates
+            ].filter((id, index, self) => self.indexOf(id) === index)
           };
           const updatedProgress = {
             ...prev,
@@ -527,7 +535,7 @@ const PythonFundamentals = () => {
           </div>
         </div>
 
-        <AnimatePresenceComponent>
+        <FramerAnimatePresence>
           {selectedPhaseAndTopic && selectedPhaseAndTopic.topic && (
             <motion.div
               key={selectedPhaseAndTopic.phase?.id + "-topics"}
@@ -554,7 +562,7 @@ const PythonFundamentals = () => {
                 </motion.button>
               </div>
 
-              <AnimatePresenceComponent>
+              <FramerAnimatePresence>
                 {expandedTopic === selectedPhaseAndTopic.topic.id && (
                   <motion.div
                     key={selectedPhaseAndTopic.topic.id + "-subtopics"}
@@ -622,10 +630,10 @@ const PythonFundamentals = () => {
                     })}
                   </motion.div>
                 )}
-              </AnimatePresenceComponent>
+              </FramerAnimatePresence>
             </motion.div>
           )}
-        </AnimatePresenceComponent>
+        </FramerAnimatePresence>
 
         <PythonQuizPopup
           isOpen={showQuiz}
