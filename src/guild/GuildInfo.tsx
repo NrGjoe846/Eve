@@ -1,20 +1,25 @@
 import React from 'react';
 import { Users } from 'lucide-react';
 import { motion } from 'framer-motion';
+import './GuildStyles.css';
 
 const GuildInfo = () => {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className="bg-black/20 p-6 rounded-xl border border-white/10"
+      className="holo-card p-6 w-80"
     >
-      <Users className="w-8 h-8 text-teal-400 mb-4" />
-      <h2 className="text-xl font-semibold">Your Guild</h2>
-      <p className="text-gray-400 mt-2">Guild Name: The Pioneers</p>
-      <p className="text-gray-400">Members: 42</p>
-      <button className="mt-4 px-4 py-2 bg-gradient-to-r from-teal-400 to-purple-500 rounded-full hover:from-teal-500 hover:to-purple-600 transition-all">
+      <Users className="w-8 h-8 text-cyan-400 mb-4" />
+      <h2 className="text-xl font-semibold text-white">Your Guild</h2>
+      <p className="text-gray-300 mt-2">Guild Name: The Pioneers</p>
+      <p className="text-gray-300">Members: 42</p>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="neon-button mt-4 w-full"
+      >
         Manage Guild
-      </button>
+      </motion.button>
     </motion.div>
   );
 };
