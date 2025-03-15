@@ -5,7 +5,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import BackButton from '../BackButton';
 import { Project, difficultyLevels } from './projectData';
 
-const API_KEY = 'AIzaSyDFujDavmC63MeyvGc9vgchx_HL6vMdjm4';
+const API_KEY = 'AIzaSyCFongAOEQyrrsdLHXsRxc7eWHfDH3-i4w';
 
 interface CodeLine {
   code: string;
